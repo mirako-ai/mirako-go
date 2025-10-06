@@ -33,5 +33,5 @@ lint:
 
 clean:
 	@echo "Cleaning generated files..."
-	rm -f gen/client.gen.go
+	rm -f api/client.gen.go
 	rm -f coverage.out

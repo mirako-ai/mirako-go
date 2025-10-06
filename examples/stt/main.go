@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/mirako-ai/mirako-go/client"
-	"github.com/mirako-ai/mirako-go/gen"
+	"github.com/mirako-ai/mirako-go/api"
 )
 
 func main() {
@@ -35,7 +35,7 @@ func main() {
 
 	audioB64 := base64.StdEncoding.EncodeToString(audioData)
 
-	resp, err := c.ConvertSpeechToText(ctx, gen.ConvertSpeechToTextJSONRequestBody{
+	resp, err := c.ConvertSpeechToText(ctx, api.ConvertSpeechToTextJSONRequestBody{
 		Audio: audioB64,
 	})
 	if err != nil {
@@ -47,7 +47,7 @@ func main() {
 		log.Fatalf("Unexpected status code: %d", resp.StatusCode)
 	}
 
-	var result gen.STTApiResponseBody
+	var result api.STTApiResponseBody
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		log.Fatalf("Failed to decode response: %v", err)
 	}
