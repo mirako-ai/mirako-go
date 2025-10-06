@@ -135,6 +135,35 @@ jobs:
           git push origin ${{ steps.version.outputs.version }}
           echo "✅ Created and pushed tag ${{ steps.version.outputs.version }}"
 
+      - name: Create GitHub Release
+        if: steps.check_changes.outputs.changed == 'true' && github.event_name == 'repository_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ steps.version.outputs.version }} \
+            --title "${{ steps.version.outputs.version }} - API Update" \
+            --notes "## 🤖 Auto-generated Release
+          
+          This release updates the SDK to match the latest Mirako API specification.
+          
+          ### Changes
+          - Updated OpenAPI spec from https://mirako.co/openapi-3.0.yaml
+          - Regenerated client code in \`gen/\` directory
+          - Updated Go module dependencies
+          
+          ### Installation
+          \`\`\`bash
+          go get github.com/mirako-ai/mirako-go@${{ steps.version.outputs.version }}
+          \`\`\`
+          
+          ### Documentation
+          - [API Reference](https://pkg.go.dev/github.com/mirako-ai/mirako-go@${{ steps.version.outputs.version }})
+          - [Examples](https://github.com/mirako-ai/mirako-go/tree/main/examples)
+          
+          ---
+          *This release was automatically created by the \`regen.yml\` workflow.*"
+          echo "✅ Created GitHub release ${{ steps.version.outputs.version }}"
+
       - name: No changes detected
         if: steps.check_changes.outputs.changed != 'true'
         run: |
