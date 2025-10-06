@@ -32,7 +32,7 @@ import (
 	"log"
 
 	"github.com/mirako-ai/mirako-go/client"
-	"github.com/mirako-ai/mirako-go/gen"
+	"github.com/mirako-ai/mirako-go/api"
 )
 
 func main() {
@@ -142,7 +142,7 @@ client, err := client.NewClient(
 ```go
 ctx := context.Background()
 
-body := gen.ConvertTextToSpeechJSONRequestBody{
+body := api.ConvertTextToSpeechJSONRequestBody{
 	Text:            "Hello, welcome to Mirako!",
 	VoiceProfileId:  "profile-id",
 	ReturnType:      "b64_audio_str",
@@ -162,7 +162,7 @@ ctx := context.Background()
 
 audioBase64 := "UklGRiQAAABXQVZFZm10..." // base64 encoded audio
 
-body := gen.ConvertSpeechToTextJSONRequestBody{
+body := api.ConvertSpeechToTextJSONRequestBody{
 	Audio: audioBase64,
 }
 
@@ -179,7 +179,7 @@ defer resp.Body.Close()
 ctx := context.Background()
 
 prompt := "A realistic photo of an Asian girl with long black hair"
-body := gen.GenerateAvatarAsyncJSONRequestBody{
+body := api.GenerateAvatarAsyncJSONRequestBody{
 	Prompt: prompt,
 }
 
@@ -198,8 +198,8 @@ defer resp.Body.Close()
 ```go
 ctx := context.Background()
 
-aspectRatio := gen.N169
-body := gen.GenerateImageAsyncJSONRequestBody{
+aspectRatio := api.N169
+body := api.GenerateImageAsyncJSONRequestBody{
 	Prompt:      "A girl sitting in a cafe smiling",
 	AspectRatio: aspectRatio,
 }
@@ -216,7 +216,7 @@ defer resp.Body.Close()
 ```go
 ctx := context.Background()
 
-body := gen.StartInteractiveSessionJSONRequestBody{
+body := api.StartInteractiveSessionJSONRequestBody{
 	AvatarId:       "avatar-id",
 	VoiceProfileId: "voice-profile-id",
 	LlmModel:       "gemini-2.0-flash",
@@ -262,13 +262,13 @@ if resp.StatusCode != http.StatusOK {
 
 See the [official API documentation](https://mirako.co/docs) for detailed information about request/response schemas and parameters.
 
-All generated types and constants are available in the `gen` package:
+All generated types and constants are available in the `api` package:
 
 ```go
-import "github.com/mirako-ai/mirako-go/gen"
+import "github.com/mirako-ai/mirako-go/api"
 
 // Use generated types
-var status gen.AsyncTaskStatusStatus = gen.AsyncTaskStatusStatusCOMPLETED
+var status api.AsyncTaskStatusStatus = api.AsyncTaskStatusStatusCOMPLETED
 ```
 
 ## Code Generation

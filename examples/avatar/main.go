@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/mirako-ai/mirako-go/client"
-	"github.com/mirako-ai/mirako-go/gen"
+	"github.com/mirako-ai/mirako-go/api"
 )
 
 func main() {
@@ -28,7 +28,7 @@ func main() {
 
 	prompt := "A friendly robot with a smiling face"
 
-	resp, err := c.GenerateAvatarAsync(ctx, gen.GenerateAvatarAsyncJSONRequestBody{
+	resp, err := c.GenerateAvatarAsync(ctx, api.GenerateAvatarAsyncJSONRequestBody{
 		Prompt: prompt,
 	})
 	if err != nil {
@@ -40,7 +40,7 @@ func main() {
 		log.Fatalf("Unexpected status code: %d", resp.StatusCode)
 	}
 
-	var result gen.AsyncGenerateAvatarApiResponseBody
+	var result api.AsyncGenerateAvatarApiResponseBody
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		log.Fatalf("Failed to decode response: %v", err)
 	}

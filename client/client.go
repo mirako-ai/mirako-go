@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/mirako-ai/mirako-go/gen"
+	"github.com/mirako-ai/mirako-go/api"
 )
 
 const (
@@ -16,7 +16,7 @@ const (
 )
 
 type Client struct {
-	gen.ClientInterface
+	api.ClientInterface
 	apiKey      string
 	baseURL     string
 	httpClient  *http.Client
@@ -43,12 +43,12 @@ func NewClient(opts ...Option) (*Client, error) {
 		return nil, fmt.Errorf("API key is required")
 	}
 
-	genClient, err := gen.NewClient(
+	genClient, err := api.NewClient(
 		c.baseURL,
-		gen.WithHTTPClient(c.httpClient),
-		gen.WithRequestEditorFn(c.authRequestEditor),
-		gen.WithRequestEditorFn(c.loggingRequestEditor),
-		gen.WithRequestEditorFn(c.tracingRequestEditor),
+		api.WithHTTPClient(c.httpClient),
+		api.WithRequestEditorFn(c.authRequestEditor),
+		api.WithRequestEditorFn(c.loggingRequestEditor),
+		api.WithRequestEditorFn(c.tracingRequestEditor),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create generated client: %w", err)

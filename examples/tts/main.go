@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/mirako-ai/mirako-go/client"
-	"github.com/mirako-ai/mirako-go/gen"
+	"github.com/mirako-ai/mirako-go/api"
 )
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 	voiceProfileID := "your-voice-profile-id"
 	text := "Hello, welcome to Mirako AI!"
 
-	resp, err := c.ConvertTextToSpeech(ctx, gen.ConvertTextToSpeechJSONRequestBody{
+	resp, err := c.ConvertTextToSpeech(ctx, api.ConvertTextToSpeechJSONRequestBody{
 		Text:           text,
 		VoiceProfileId: voiceProfileID,
 		ReturnType:     "b64_audio_str",
@@ -44,7 +44,7 @@ func main() {
 		log.Fatalf("Unexpected status code: %d", resp.StatusCode)
 	}
 
-	var result gen.TTSApiResponseBody
+	var result api.TTSApiResponseBody
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		log.Fatalf("Failed to decode response: %v", err)
 	}

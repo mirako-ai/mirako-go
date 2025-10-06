@@ -42,7 +42,7 @@ jobs:
       - name: Install oapi-codegen
         if: steps.check_changes.outputs.changed == 'true'
         run: |
-          go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+          go install github.com/oapi-codeapi/oapi-codeapi/v2/cmd/oapi-codegen@latest
 
       - name: Generate client code
         if: steps.check_changes.outputs.changed == 'true'
@@ -89,7 +89,7 @@ jobs:
         run: |
           BRANCH_NAME="auto-regen-${{ steps.version.outputs.version }}"
           git checkout -b ${BRANCH_NAME}
-          git add openapi.yaml gen/ go.mod go.sum
+          git add openapi.yaml api/ go.mod go.sum
           git commit -m "chore: regenerate client from latest OpenAPI spec
           
           Auto-generated from OpenAPI spec update.
@@ -111,7 +111,7 @@ jobs:
           
           ### Changes
           - Updated OpenAPI spec from https://mirako.co/openapi-3.0.yaml
-          - Regenerated client code in \`gen/\` directory
+          - Regenerated client code in \`api/\` directory
           - Updated Go module dependencies
           
           ### Version
@@ -148,7 +148,7 @@ jobs:
           
           ### Changes
           - Updated OpenAPI spec from https://mirako.co/openapi-3.0.yaml
-          - Regenerated client code in \`gen/\` directory
+          - Regenerated client code in \`api/\` directory
           - Updated Go module dependencies
           
           ### Installation
