@@ -1,6 +1,6 @@
 # Mirako Go SDK
 
-Official Go SDK for the [Mirako REST API](https://mirako.co). Generate AI avatars, images, videos, and realistic speech with a simple and intuitive interface.
+Official Go SDK for [Mirako.ai](https://mirako.ai). Generate AI avatars, images, videos, and realistic speech with a simple and intuitive interface.
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/mirako-ai/mirako-go.svg)](https://pkg.go.dev/github.com/mirako-ai/mirako-go)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mirako-ai/mirako-go)](https://goreportcard.com/report/github.com/mirako-ai/mirako-go)
