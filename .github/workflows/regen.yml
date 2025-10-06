@@ -1,0 +1,141 @@
+name: Regenerate API Client
+
+on:
+  repository_dispatch:
+    types: [openapi-update]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to create (e.g., v1.2.3)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Download latest OpenAPI spec
+        run: |
+          curl -sSL https://mirako.co/openapi-3.0.yaml -o openapi.yaml
+          echo "✅ Downloaded latest OpenAPI spec"
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --quiet openapi.yaml || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Install oapi-codegen
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+
+      - name: Generate client code
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          oapi-codegen -config oapi-codegen.yaml openapi.yaml
+          echo "✅ Generated client code"
+
+      - name: Tidy dependencies
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          go mod tidy
+          echo "✅ Tidied Go modules"
+
+      - name: Build and verify
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          go build ./...
+          echo "✅ Build successful"
+
+      - name: Determine version
+        if: steps.check_changes.outputs.changed == 'true'
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          elif [ "${{ github.event_name }}" = "repository_dispatch" ] && [ -n "${{ github.event.client_payload.version }}" ]; then
+            VERSION="${{ github.event.client_payload.version }}"
+          else
+            LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+            VERSION=$(echo $LATEST_TAG | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "📦 Version: ${VERSION}"
+
+      - name: Configure Git
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create branch and commit
+        if: steps.check_changes.outputs.changed == 'true'
+        id: create_branch
+        run: |
+          BRANCH_NAME="auto-regen-${{ steps.version.outputs.version }}"
+          git checkout -b ${BRANCH_NAME}
+          git add openapi.yaml gen/ go.mod go.sum
+          git commit -m "chore: regenerate client from latest OpenAPI spec
+          
+          Auto-generated from OpenAPI spec update.
+          Version: ${{ steps.version.outputs.version }}"
+          git push origin ${BRANCH_NAME}
+          echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "✅ Created branch ${BRANCH_NAME}"
+
+      - name: Create Pull Request
+        if: steps.check_changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --title "chore: regenerate client ${{ steps.version.outputs.version }}" \
+            --body "## 🤖 Auto-generated PR
+          
+          This PR updates the SDK client code to match the latest OpenAPI specification.
+          
+          ### Changes
+          - Updated OpenAPI spec from https://mirako.co/openapi-3.0.yaml
+          - Regenerated client code in \`gen/\` directory
+          - Updated Go module dependencies
+          
+          ### Version
+          ${{ steps.version.outputs.version }}
+          
+          ### Verification
+          - ✅ Code generation successful
+          - ✅ Go build passed
+          - ✅ Dependencies tidied
+          
+          ---
+          *This PR was automatically created by the \`regen.yml\` workflow.*" \
+            --base main \
+            --head ${{ steps.create_branch.outputs.branch }}
+          echo "✅ Created pull request"
+
+      - name: Create and push tag
+        if: steps.check_changes.outputs.changed == 'true' && github.event_name == 'repository_dispatch'
+        run: |
+          git tag ${{ steps.version.outputs.version }}
+          git push origin ${{ steps.version.outputs.version }}
+          echo "✅ Created and pushed tag ${{ steps.version.outputs.version }}"
+
+      - name: No changes detected
+        if: steps.check_changes.outputs.changed != 'true'
+        run: |
+          echo "ℹ️ No changes detected in OpenAPI spec. Skipping regeneration."

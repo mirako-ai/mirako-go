@@ -1,0 +1,8 @@
+package: gen
+generate:
+  client: true
+  models: true
+  embedded-spec: true
+output: gen/client.gen.go
+output-options:
+  skip-prune: true
