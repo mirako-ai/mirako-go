@@ -1306,6 +1306,10 @@ components:
         tools:
           description: The tools to be used in the session
           type: string
+        use_beta:
+          description: Use beta interactive model. Beta model is the latest dev model, which is rapidly changed, may have bugs and not suitable for production. Default is false.
+          example: false
+          type: boolean
         voice_profile_id:
           description: The voice profile id
           example: a1b2c3d4-e5f6-7890-1234-567890abcdef
