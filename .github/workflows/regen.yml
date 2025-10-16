@@ -12,7 +12,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   regenerate:
@@ -83,60 +82,25 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Create branch and commit
+      - name: Commit and push changes
         if: steps.check_changes.outputs.changed == 'true'
-        id: create_branch
         run: |
-          BRANCH_NAME="auto-regen-${{ steps.version.outputs.version }}"
-          git checkout -b ${BRANCH_NAME}
           git add openapi.yaml api/ go.mod go.sum
           git commit -m "chore: regenerate client from latest OpenAPI spec
-          
           Auto-generated from OpenAPI spec update.
           Version: ${{ steps.version.outputs.version }}"
-          git push origin ${BRANCH_NAME}
-          echo "branch=${BRANCH_NAME}" >> $GITHUB_OUTPUT
-          echo "✅ Created branch ${BRANCH_NAME}"
-
-      - name: Create Pull Request
-        if: steps.check_changes.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh pr create \
-            --title "chore: regenerate client ${{ steps.version.outputs.version }}" \
-            --body "## 🤖 Auto-generated PR
-          
-          This PR updates the SDK client code to match the latest OpenAPI specification.
-          
-          ### Changes
-          - Updated OpenAPI spec from https://mirako.co/openapi-3.0.yaml
-          - Regenerated client code in \`api/\` directory
-          - Updated Go module dependencies
-          
-          ### Version
-          ${{ steps.version.outputs.version }}
-          
-          ### Verification
-          - ✅ Code generation successful
-          - ✅ Go build passed
-          - ✅ Dependencies tidied
-          
-          ---
-          *This PR was automatically created by the \`regen.yml\` workflow.*" \
-            --base main \
-            --head ${{ steps.create_branch.outputs.branch }}
-          echo "✅ Created pull request"
+          git push origin main
+          echo "✅ Committed and pushed changes to main"
 
       - name: Create and push tag
-        if: steps.check_changes.outputs.changed == 'true' && github.event_name == 'repository_dispatch'
+        if: steps.check_changes.outputs.changed == 'true'
         run: |
           git tag ${{ steps.version.outputs.version }}
           git push origin ${{ steps.version.outputs.version }}
           echo "✅ Created and pushed tag ${{ steps.version.outputs.version }}"
 
       - name: Create GitHub Release
-        if: steps.check_changes.outputs.changed == 'true' && github.event_name == 'repository_dispatch'
+        if: steps.check_changes.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
