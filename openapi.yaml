@@ -140,7 +140,7 @@ components:
         prompt:
           description: The prompt for the avatar generation.
           example: A realistic photo of an Asian girl with long black hair, round-shaped eyes, wearing pink t-shirt, standing in front of a solid background.
-          maxLength: 250
+          maxLength: 1000
           type: string
         seed:
           description: Random seed for the generation, if not provided a random seed will be used
@@ -242,15 +242,21 @@ components:
             - "9:16"
           example: "16:9"
           type: string
+        images:
+          description: Optional. List of labeld images in base64 format for text-image-to-image generation. Maximum 5 images can be provided as input.
+          items:
+            $ref: "#/components/schemas/LabeledImage"
+          maxItems: 5
+          nullable: true
+          type: array
         prompt:
           description: The prompt for the image generation. Include in the prompt the Avatar Id (uuid) to generate image of the avatar.
           example: A girl sitting in a cafe smiling, wide-shot, angled view.
           type: string
         seed:
-          description: Random seed for the generation, if not provided a random seed will be used
+          description: Seed for the generation, if not provided a random seed will be used
           example: 1234567890
-          format: int64
-          minimum: 0
+          format: int32
           type: integer
         webhook:
           $ref: "#/components/schemas/Webhook"
@@ -711,12 +717,61 @@ components:
         - task_id
         - status
       type: object
+    GenerateImageApiRequestBody:
+      additionalProperties: false
+      properties:
+        aspect_ratio:
+          description: The aspect ratio for the generation. Default to '16:9'
+          enum:
+            - "16:9"
+            - "1:1"
+            - "4:3"
+            - "3:2"
+            - "2:3"
+            - "3:4"
+            - "9:16"
+          example: "16:9"
+          type: string
+        images:
+          description: Optional. List of labeld images in base64 format for text-image-to-image generation. Maximum 5 images can be provided as input.
+          items:
+            $ref: "#/components/schemas/LabeledImage"
+          maxItems: 5
+          nullable: true
+          type: array
+        prompt:
+          description: The prompt for the image generation. Include in the prompt the Avatar Id (uuid) to generate image of the avatar.
+          example: A girl sitting in a cafe smiling, wide-shot, angled view.
+          type: string
+        seed:
+          description: Seed for the generation, if not provided a random seed will be used
+          example: 1234567890
+          format: int32
+          type: integer
+      required:
+        - prompt
+        - aspect_ratio
+      type: object
+    GenerateImageApiResponseBody:
+      additionalProperties: false
+      properties:
+        data:
+          $ref: "#/components/schemas/GenerateOutput"
+          description: The generated image output
+      type: object
     GenerateImageStatusApiResponseBody:
       additionalProperties: false
       properties:
         data:
           $ref: "#/components/schemas/GenerateTaskOutput"
           description: The image generation task output
+      type: object
+    GenerateOutput:
+      additionalProperties: false
+      properties:
+        image:
+          description: The generated image in JPG format, encoded in base64.
+          type: string
       type: object
     GenerateTalkingAvatarOutputInternal:
       additionalProperties: false
@@ -920,6 +975,20 @@ components:
             $ref: "#/components/schemas/PresignedVoiceProfile"
           nullable: true
           type: array
+      required:
+        - data
+      type: object
+    LabeledImage:
+      additionalProperties: false
+      properties:
+        data:
+          description: The image in data-url base64 format. Currently support 'image/jpeg' and 'image/png' format.
+          example: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...
+          type: string
+        label:
+          description: The label of the image. Used to identify and refer the image in the given prompt.
+          example: Product
+          type: string
       required:
         - data
       type: object
@@ -1683,7 +1752,7 @@ paths:
         - Avatar
   /v1/image/async_generate:
     post:
-      description: Create an image generation task. This is an async operation.
+      description: Create an image generation task. This is an async version of `/image/generate`.
       operationId: GenerateImageAsync
       requestBody:
         content:
@@ -1737,6 +1806,34 @@ paths:
       security:
         - BearerAuth: []
       summary: Get the status of an image generation task
+      tags:
+        - Image
+  /v1/image/generate:
+    post:
+      description: Generate an image based on the provided prompt and optional input images.
+      operationId: GenerateImage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateImageApiRequestBody"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateImageApiResponseBody"
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      security:
+        - BearerAuth: []
+      summary: Generate an image
       tags:
         - Image
   /v1/interactive/list:

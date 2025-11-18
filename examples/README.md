@@ -31,6 +31,18 @@ cd tts && go run main.go
 - **Description**: Generate an avatar image from a text prompt (async)
 - **Output**: Task ID for tracking generation status
 
+### Image Generation
+- **Directory**: `image/`
+- **Description**: Generate images using text prompts (synchronous) and text-image-to-image generation
+- **Features**:
+  - Synchronous image generation from text prompts
+  - Text-image-to-image generation with labeled input images (up to 5 images)
+  - Customizable aspect ratios
+- **Output**: JPG image files
+- **Environment Variables**:
+  - `MIRAKO_API_KEY`: Required for authentication
+  - `INPUT_IMAGE_PATH`: Optional, path to input image for text-image-to-image generation
+
 ## Prerequisites
 
 - Go 1.21 or later
