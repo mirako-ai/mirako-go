@@ -35,3 +35,8 @@ examples/*.mp4
 examples/*.png
 examples/*.jpg
 examples/*.jpeg
+examples/*/image-example
+examples/*/avatar
+examples/*/tts
+examples/*/stt
+examples/*/image
