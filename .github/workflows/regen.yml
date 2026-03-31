@@ -46,7 +46,9 @@ jobs:
       - name: Generate client code
         if: steps.check_changes.outputs.changed == 'true'
         run: |
-          oapi-codegen -config oapi-codegen.yaml openapi.yaml
+          python3 scripts/prepare_openapi_for_codegen.py openapi.yaml openapi.codegen.yaml
+          oapi-codegen -config oapi-codegen.yaml openapi.codegen.yaml
+          rm -f openapi.codegen.yaml
           echo "✅ Generated client code"
 
       - name: Tidy dependencies

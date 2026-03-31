@@ -17,7 +17,10 @@ install-tools:
 
 generate:
 	@echo "Generating client from OpenAPI spec..."
-	oapi-codegen -config oapi-codegen.yaml openapi.yaml
+	@tmp_spec=$$(mktemp); \
+	python3 scripts/prepare_openapi_for_codegen.py openapi.yaml $$tmp_spec; \
+	oapi-codegen -config oapi-codegen.yaml $$tmp_spec; \
+	rm -f $$tmp_spec
 
 build:
 	@echo "Building..."
