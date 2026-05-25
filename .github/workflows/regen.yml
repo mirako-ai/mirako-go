@@ -41,7 +41,7 @@ jobs:
       - name: Install oapi-codegen
         if: steps.check_changes.outputs.changed == 'true'
         run: |
-          go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+          go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.5.0
 
       - name: Generate client code
         if: steps.check_changes.outputs.changed == 'true'

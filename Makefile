@@ -11,7 +11,7 @@ help:
 
 install-tools:
 	@echo "Installing oapi-codegen..."
-	go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+	go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.5.0
 	@echo "Installing golangci-lint..."
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
