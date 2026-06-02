@@ -36,10 +36,6 @@ components:
           description: Instruction prompt for managed agents
           example: You are a helpful assistant.
           type: string
-        llm_model:
-          description: LLM model used by managed agents to generate the avatar response
-          example: gemini-2.0-flash
-          type: string
         model:
           description: Interactive Metis model used by the agent
           example: metis-2.5
@@ -123,10 +119,6 @@ components:
         instruction:
           description: Instruction prompt for managed agents
           example: You are a helpful assistant.
-          type: string
-        llm_model:
-          description: LLM model used by managed agents to generate the avatar response
-          example: gemini-2.0-flash
           type: string
         model:
           description: Interactive Metis model used by the agent
@@ -598,10 +590,6 @@ components:
           description: Instruction prompt for managed agents. Required when runtime_kind is managed_agent.
           example: You are a helpful assistant.
           maxLength: 12000
-          type: string
-        llm_model:
-          description: LLM model used by managed agents. Required when runtime_kind is managed_agent.
-          example: gemini-2.0-flash
           type: string
         model:
           default: metis-2.5
@@ -1929,10 +1917,6 @@ components:
           description: Instruction prompt for managed agents
           example: You are a helpful assistant.
           maxLength: 12000
-          type: string
-        llm_model:
-          description: LLM model used by managed agents
-          example: gemini-2.0-flash
           type: string
         model:
           description: Interactive Metis model used by the agent
