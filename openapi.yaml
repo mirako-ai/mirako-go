@@ -12,20 +12,32 @@ components:
           example: "2025-01-01T00:00:00Z"
           format: date-time
           type: string
+        custom_agent_protocol:
+          description: Custom agent streaming protocol. Currently only vercel_ai_sdk is supported
+          example: vercel_ai_sdk
+          type: string
+        custom_agent_url:
+          description: Custom agent endpoint URL when runtime_kind is custom_agent
+          example: https://example.com/api/chat
+          type: string
         description:
           description: Optional description for the agent
           example: A helpful support avatar for product questions.
           type: string
+        has_custom_agent_bearer_token:
+          description: Whether a custom agent bearer token is configured
+          example: true
+          type: boolean
         id:
           description: Unique identifier for the agent
           example: a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
         instruction:
-          description: Instruction prompt for the agent
+          description: Instruction prompt for managed agents
           example: You are a helpful assistant.
           type: string
         llm_model:
-          description: LLM model used to generate the avatar response
+          description: LLM model used by managed agents to generate the avatar response
           example: gemini-2.0-flash
           type: string
         model:
@@ -36,8 +48,12 @@ components:
           description: Name of the agent
           example: Support Agent
           type: string
+        runtime_kind:
+          description: Runtime kind for this agent. One of managed_agent or custom_agent
+          example: managed_agent
+          type: string
         tools:
-          description: Tool definitions available to the agent
+          description: Tool definitions available to managed agents
           example: []
           items: {}
           nullable: true
@@ -62,9 +78,97 @@ components:
         - avatar_id
         - voice_profile_id
         - model
-        - llm_model
-        - instruction
         - tools
+        - runtime_kind
+        - has_custom_agent_bearer_token
+        - created_at
+        - updated_at
+      type: object
+    AgentResponse:
+      additionalProperties: false
+      properties:
+        avatar_id:
+          description: Avatar used by the agent
+          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          type: string
+        created_at:
+          description: Creation timestamp
+          example: "2025-01-01T00:00:00Z"
+          format: date-time
+          type: string
+        custom_agent_bearer_token:
+          description: Bearer token for the custom agent endpoint. Returned only to system callers.
+          example: secret-token
+          type: string
+        custom_agent_protocol:
+          description: Custom agent streaming protocol. Currently only vercel_ai_sdk is supported
+          example: vercel_ai_sdk
+          type: string
+        custom_agent_url:
+          description: Custom agent endpoint URL when runtime_kind is custom_agent
+          example: https://example.com/api/chat
+          type: string
+        description:
+          description: Optional description for the agent
+          example: A helpful support avatar for product questions.
+          type: string
+        has_custom_agent_bearer_token:
+          description: Whether a custom agent bearer token is configured
+          example: true
+          type: boolean
+        id:
+          description: Unique identifier for the agent
+          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          type: string
+        instruction:
+          description: Instruction prompt for managed agents
+          example: You are a helpful assistant.
+          type: string
+        llm_model:
+          description: LLM model used by managed agents to generate the avatar response
+          example: gemini-2.0-flash
+          type: string
+        model:
+          description: Interactive Metis model used by the agent
+          example: metis-2.5
+          type: string
+        name:
+          description: Name of the agent
+          example: Support Agent
+          type: string
+        runtime_kind:
+          description: Runtime kind for this agent. One of managed_agent or custom_agent
+          example: managed_agent
+          type: string
+        tools:
+          description: Tool definitions available to managed agents
+          example: []
+          items: {}
+          nullable: true
+          type: array
+        updated_at:
+          description: Last update timestamp
+          example: "2025-01-01T00:00:00Z"
+          format: date-time
+          type: string
+        user_id:
+          description: User ID of the agent owner
+          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          type: string
+        voice_profile_id:
+          description: Voice profile used by the agent
+          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          type: string
+      required:
+        - id
+        - user_id
+        - name
+        - avatar_id
+        - voice_profile_id
+        - model
+        - tools
+        - runtime_kind
+        - has_custom_agent_bearer_token
         - created_at
         - updated_at
       type: object
@@ -458,7 +562,7 @@ components:
       additionalProperties: false
       properties:
         data:
-          $ref: "#/components/schemas/Agent"
+          $ref: "#/components/schemas/AgentResponse"
           description: Created agent
       required:
         - data
@@ -470,18 +574,33 @@ components:
           description: Avatar used by the agent
           example: a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
+        custom_agent_bearer_token:
+          description: Optional bearer token sent to the custom agent endpoint. Stored but not returned to normal users.
+          example: secret-token
+          type: string
+        custom_agent_protocol:
+          default: vercel_ai_sdk
+          description: Custom agent streaming protocol. Currently only vercel_ai_sdk is supported
+          enum:
+            - vercel_ai_sdk
+          example: vercel_ai_sdk
+          type: string
+        custom_agent_url:
+          description: Custom agent endpoint URL. Required when runtime_kind is custom_agent.
+          example: https://example.com/api/chat
+          type: string
         description:
           description: Optional description for the agent
           example: A helpful support avatar for product questions.
           maxLength: 512
           type: string
         instruction:
-          description: Instruction prompt for the agent
+          description: Instruction prompt for managed agents. Required when runtime_kind is managed_agent.
           example: You are a helpful assistant.
           maxLength: 12000
           type: string
         llm_model:
-          description: LLM model used to generate the avatar response
+          description: LLM model used by managed agents. Required when runtime_kind is managed_agent.
           example: gemini-2.0-flash
           type: string
         model:
@@ -495,8 +614,16 @@ components:
           maxLength: 64
           minLength: 1
           type: string
+        runtime_kind:
+          default: managed_agent
+          description: Runtime kind for this agent
+          enum:
+            - managed_agent
+            - custom_agent
+          example: managed_agent
+          type: string
         tools:
-          description: Tool definitions available to the agent
+          description: Tool definitions available to managed agents
           example: []
           items: {}
           nullable: true
@@ -509,8 +636,6 @@ components:
         - name
         - avatar_id
         - voice_profile_id
-        - llm_model
-        - instruction
       type: object
     CreateApiTokenOutput:
       additionalProperties: false
@@ -1055,7 +1180,7 @@ components:
       additionalProperties: false
       properties:
         data:
-          $ref: "#/components/schemas/Agent"
+          $ref: "#/components/schemas/AgentResponse"
           description: Agent configuration
       required:
         - data
@@ -1200,7 +1325,7 @@ components:
         data:
           description: List of user agents
           items:
-            $ref: "#/components/schemas/Agent"
+            $ref: "#/components/schemas/AgentResponse"
           nullable: true
           type: array
       required:
@@ -1769,7 +1894,7 @@ components:
       additionalProperties: false
       properties:
         data:
-          $ref: "#/components/schemas/Agent"
+          $ref: "#/components/schemas/AgentResponse"
           description: Updated agent
       required:
         - data
@@ -1781,18 +1906,32 @@ components:
           description: Avatar used by the agent
           example: a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
+        custom_agent_bearer_token:
+          description: Optional bearer token sent to the custom agent endpoint. Send an empty string to clear it.
+          example: secret-token
+          type: string
+        custom_agent_protocol:
+          description: Custom agent streaming protocol. Currently only vercel_ai_sdk is supported
+          enum:
+            - vercel_ai_sdk
+          example: vercel_ai_sdk
+          type: string
+        custom_agent_url:
+          description: Custom agent endpoint URL
+          example: https://example.com/api/chat
+          type: string
         description:
           description: Optional description for the agent
           example: A helpful support avatar for product questions.
           maxLength: 512
           type: string
         instruction:
-          description: Instruction prompt for the agent
+          description: Instruction prompt for managed agents
           example: You are a helpful assistant.
           maxLength: 12000
           type: string
         llm_model:
-          description: LLM model used to generate the avatar response
+          description: LLM model used by managed agents
           example: gemini-2.0-flash
           type: string
         model:
@@ -1805,8 +1944,15 @@ components:
           maxLength: 64
           minLength: 1
           type: string
+        runtime_kind:
+          description: Runtime kind for this agent
+          enum:
+            - managed_agent
+            - custom_agent
+          example: managed_agent
+          type: string
         tools:
-          description: Tool definitions available to the agent
+          description: Tool definitions available to managed agents
           example: []
           items: {}
           type: array
