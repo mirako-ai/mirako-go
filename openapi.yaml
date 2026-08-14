@@ -164,6 +164,78 @@ components:
         - created_at
         - updated_at
       type: object
+    AgentRouteResponse:
+      additionalProperties: false
+      properties:
+        agent_id:
+          description: Target agent ID
+          example: b1b2c3d4-e5f6-4890-9234-567890abcdef
+          type: string
+        created_at:
+          description: Creation timestamp
+          example: "2025-01-01T00:00:00Z"
+          format: date-time
+          type: string
+        expires_at:
+          description: Absolute UTC expiration time, or null for a permanent route
+          example: "2025-01-02T00:00:00Z"
+          format: date-time
+          nullable: true
+          type: string
+        id:
+          description: Route UUIDv4 bearer capability
+          example: a1b2c3d4-e5f6-4890-9234-567890abcdef
+          type: string
+        label:
+          description: Optional owner-facing label
+          example: Production website
+          maxLength: 100
+          nullable: true
+          type: string
+        path:
+          description: Projected metis-view path
+          example: /a/a1b2c3d4-e5f6-4890-9234-567890abcdef
+          type: string
+        revoked_at:
+          description: Manual revocation time, or null
+          example: null
+          format: date-time
+          nullable: true
+          type: string
+        route_version:
+          description: Monotonic route lifecycle version
+          example: 1
+          format: int64
+          type: integer
+        status:
+          description: Derived route status
+          enum:
+            - active
+            - expired
+            - revoked
+          example: active
+          type: string
+        updated_at:
+          description: Last persisted update timestamp
+          example: "2025-01-01T00:00:00Z"
+          format: date-time
+          type: string
+        url:
+          description: Absolute metis-view URL when configured
+          example: https://view.mirako.co/a/a1b2c3d4-e5f6-4890-9234-567890abcdef
+          type: string
+      required:
+        - id
+        - agent_id
+        - label
+        - expires_at
+        - revoked_at
+        - route_version
+        - status
+        - created_at
+        - updated_at
+        - path
+      type: object
     AgentRuntimeProfile:
       additionalProperties: false
       properties:
@@ -624,6 +696,30 @@ components:
         - name
         - avatar_id
         - voice_profile_id
+      type: object
+    CreateAgentRouteApiResponseBody:
+      additionalProperties: false
+      properties:
+        data:
+          $ref: "#/components/schemas/AgentRouteResponse"
+          description: Created agent route
+      required:
+        - data
+      type: object
+    CreateAgentRouteInput:
+      additionalProperties: false
+      properties:
+        label:
+          description: Optional owner-facing label
+          example: Production website
+          maxLength: 100
+          type: string
+        validity_seconds:
+          description: Positive validity duration in seconds. Omit for a permanent route.
+          example: 86400
+          format: int64
+          minimum: 1
+          type: integer
       type: object
     CreateApiTokenOutput:
       additionalProperties: false
@@ -2020,6 +2116,44 @@ paths:
       summary: Create agent
       tags:
         - Agents
+  /v1/agents/{agent_id}/routes:
+    post:
+      description: Create a permanent or temporary bearer-capability route for an owned agent.
+      operationId: CreateAgentRoute
+      parameters:
+        - description: Owned target agent ID
+          example: b1b2c3d4-e5f6-4890-9234-567890abcdef
+          in: path
+          name: agent_id
+          required: true
+          schema:
+            description: Owned target agent ID
+            example: b1b2c3d4-e5f6-4890-9234-567890abcdef
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAgentRouteInput"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateAgentRouteApiResponseBody"
+          description: Created
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      security:
+        - BearerAuth: []
+      summary: Create agent route
+      tags:
+        - Agent Routes
   /v1/agents/{id}:
     delete:
       description: Delete a persistent agent configuration.
