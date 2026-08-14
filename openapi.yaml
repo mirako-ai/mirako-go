@@ -1415,7 +1415,7 @@ components:
       additionalProperties: false
       properties:
         data:
-          description: Owned routes for the target agent
+          description: Owned agent routes
           items:
             $ref: "#/components/schemas/AgentRouteResponse"
           nullable: true
@@ -2096,6 +2096,28 @@ info:
   version: 1.0.0
 openapi: 3.0.3
 paths:
+  /v1/agent-routes:
+    get:
+      description: List all routes owned by the authenticated user across agents.
+      operationId: ListOwnerAgentRoutes
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListAgentRoutesApiResponseBody"
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      security:
+        - BearerAuth: []
+      summary: List owned agent routes
+      tags:
+        - Agent Routes
   /v1/agent-routes/{route_id}:
     get:
       description: Get an owned route. Routes owned by another user appear missing.
