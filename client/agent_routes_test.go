@@ -3,9 +3,11 @@ package client
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/mirako-ai/mirako-go/api"
@@ -118,6 +120,202 @@ func TestCreateAgentRouteRequest(t *testing.T) {
 			if route.CreatedAt.IsZero() || route.UpdatedAt.IsZero() {
 				t.Errorf("typed response timestamps = created %v, updated %v", route.CreatedAt, route.UpdatedAt)
 			}
+		})
+	}
+}
+
+type recordingLogger struct {
+	messages []string
+}
+
+func (l *recordingLogger) Logf(format string, args ...any) {
+	l.messages = append(l.messages, fmt.Sprintf(format, args...))
+}
+
+type recordingTracer struct {
+	request *http.Request
+}
+
+func (t *recordingTracer) TraceRequest(_ context.Context, req *http.Request) {
+	t.request = req
+}
+
+func (t *recordingTracer) TraceResponse(_ context.Context, _ *http.Response) {}
+
+func TestAgentRouteObservabilityRedactsCapabilitiesAndTokens(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/v1/agent-routes/route-capability-1" {
+			t.Errorf("actual path = %q", r.URL.Path)
+		}
+		if got := r.Header.Get("Authorization"); got != "Bearer owner-token" {
+			t.Errorf("actual Authorization = %q", got)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"data":{}}`))
+	}))
+	defer server.Close()
+
+	logger := &recordingLogger{}
+	tracer := &recordingTracer{}
+	c, err := NewClient(
+		WithAPIKey("owner-token"),
+		WithBaseURL(server.URL),
+		WithLogger(logger),
+		WithTracer(tracer),
+	)
+	if err != nil {
+		t.Fatalf("NewClient() error = %v", err)
+	}
+	resp, err := c.GetAgentRoute(context.Background(), "route-capability-1")
+	if err != nil {
+		t.Fatalf("GetAgentRoute() error = %v", err)
+	}
+	resp.Body.Close()
+
+	logs := strings.Join(logger.messages, "\n")
+	if strings.Contains(logs, "route-capability-1") || strings.Contains(logs, "owner-token") {
+		t.Fatalf("logs leaked capability or token: %q", logs)
+	}
+	if !strings.Contains(logs, "/v1/agent-routes/REDACTED") {
+		t.Fatalf("logs do not contain redacted route path: %q", logs)
+	}
+	if tracer.request == nil {
+		t.Fatal("tracer did not receive a request")
+	}
+	if got := tracer.request.URL.Path; got != "/v1/agent-routes/REDACTED" {
+		t.Fatalf("traced path = %q, want redacted path", got)
+	}
+	if got := tracer.request.Header.Get("Authorization"); got != "REDACTED" {
+		t.Fatalf("traced Authorization = %q, want REDACTED", got)
+	}
+}
+
+func TestAgentRouteManagementRequests(t *testing.T) {
+	activeRoute := `{
+		"id": "route-capability-1",
+		"agent_id": "agent-1",
+		"label": "Production website",
+		"expires_at": null,
+		"revoked_at": null,
+		"route_version": 1,
+		"status": "active",
+		"created_at": "2025-01-01T00:00:00Z",
+		"updated_at": "2025-01-01T00:00:00Z",
+		"path": "/a/route-capability-1",
+		"url": "https://view.example.test/a/route-capability-1"
+	}`
+	revokedRoute := `{
+		"id": "route-capability-1",
+		"agent_id": "agent-1",
+		"label": "Production website",
+		"expires_at": null,
+		"revoked_at": "2025-01-01T01:00:00Z",
+		"route_version": 2,
+		"status": "revoked",
+		"created_at": "2025-01-01T00:00:00Z",
+		"updated_at": "2025-01-01T01:00:00Z",
+		"path": "/a/route-capability-1",
+		"url": "https://view.example.test/a/route-capability-1"
+	}`
+
+	tests := []struct {
+		name       string
+		method     string
+		path       string
+		response   string
+		invoke     func(context.Context, *Client) (*http.Response, error)
+		assertBody func(*testing.T, *http.Response)
+	}{
+		{
+			name:     "list",
+			method:   http.MethodGet,
+			path:     "/v1/agents/agent-1/routes",
+			response: `{"data":[` + activeRoute + `]}`,
+			invoke: func(ctx context.Context, c *Client) (*http.Response, error) {
+				return c.ListAgentRoutes(ctx, "agent-1")
+			},
+			assertBody: func(t *testing.T, resp *http.Response) {
+				var result api.ListAgentRoutesApiResponseBody
+				if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+					t.Fatalf("decode list response: %v", err)
+				}
+				if result.Data == nil || len(*result.Data) != 1 || (*result.Data)[0].Id != "route-capability-1" {
+					t.Fatalf("unexpected list response: %+v", result)
+				}
+			},
+		},
+		{
+			name:     "view",
+			method:   http.MethodGet,
+			path:     "/v1/agent-routes/route-capability-1",
+			response: `{"data":` + activeRoute + `}`,
+			invoke: func(ctx context.Context, c *Client) (*http.Response, error) {
+				return c.GetAgentRoute(ctx, "route-capability-1")
+			},
+			assertBody: func(t *testing.T, resp *http.Response) {
+				var result api.GetAgentRouteApiResponseBody
+				if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+					t.Fatalf("decode view response: %v", err)
+				}
+				if result.Data.Id != "route-capability-1" || result.Data.Status != api.Active {
+					t.Fatalf("unexpected view response: %+v", result.Data)
+				}
+			},
+		},
+		{
+			name:     "revoke",
+			method:   http.MethodPost,
+			path:     "/v1/agent-routes/route-capability-1/revoke",
+			response: `{"data":` + revokedRoute + `}`,
+			invoke: func(ctx context.Context, c *Client) (*http.Response, error) {
+				return c.RevokeAgentRoute(ctx, "route-capability-1")
+			},
+			assertBody: func(t *testing.T, resp *http.Response) {
+				var result api.RevokeAgentRouteApiResponseBody
+				if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+					t.Fatalf("decode revoke response: %v", err)
+				}
+				if result.Data.Status != api.Revoked || result.Data.RevokedAt == nil || result.Data.RouteVersion != 2 {
+					t.Fatalf("unexpected revoke response: %+v", result.Data)
+				}
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method != tt.method {
+					t.Errorf("method = %q, want %q", r.Method, tt.method)
+				}
+				if r.URL.Path != tt.path {
+					t.Errorf("path = %q, want %q", r.URL.Path, tt.path)
+				}
+				if got := r.Header.Get("Authorization"); got != "Bearer owner-token" {
+					t.Errorf("Authorization = %q, want bearer owner token", got)
+				}
+				if r.Body != nil && r.ContentLength > 0 {
+					t.Errorf("unexpected request body for %s", tt.name)
+				}
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(tt.response))
+			}))
+			defer server.Close()
+
+			c, err := NewClient(WithAPIKey("owner-token"), WithBaseURL(server.URL))
+			if err != nil {
+				t.Fatalf("NewClient() error = %v", err)
+			}
+			resp, err := tt.invoke(context.Background(), c)
+			if err != nil {
+				t.Fatalf("%s request error = %v", tt.name, err)
+			}
+			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				t.Fatalf("status = %d, want %d", resp.StatusCode, http.StatusOK)
+			}
+			tt.assertBody(t, resp)
 		})
 	}
 }
