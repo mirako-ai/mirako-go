@@ -124,6 +124,90 @@ func TestCreateAgentRouteRequest(t *testing.T) {
 	}
 }
 
+func TestListOwnerAgentRoutesRequestAndTypedResponse(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			t.Errorf("method = %q, want %q", r.Method, http.MethodGet)
+		}
+		if r.URL.Path != "/v1/agent-routes" {
+			t.Errorf("path = %q, want %q", r.URL.Path, "/v1/agent-routes")
+		}
+		if r.URL.RawQuery != "" {
+			t.Errorf("unexpected query = %q", r.URL.RawQuery)
+		}
+		if got := r.Header.Get("Authorization"); got != "Bearer owner-token" {
+			t.Errorf("Authorization = %q, want bearer owner token", got)
+		}
+		if r.Body != nil && r.ContentLength > 0 {
+			t.Error("unexpected request body")
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{
+			"data": [
+				{
+					"id": "route-capability-2",
+					"agent_id": "agent-2",
+					"label": "Second agent",
+					"expires_at": null,
+					"revoked_at": null,
+					"route_version": 1,
+					"status": "active",
+					"created_at": "2025-01-02T00:00:00Z",
+					"updated_at": "2025-01-02T00:00:00Z",
+					"path": "/a/route-capability-2"
+				},
+				{
+					"id": "route-capability-1",
+					"agent_id": "agent-1",
+					"label": null,
+					"expires_at": "2025-02-01T00:00:00Z",
+					"revoked_at": null,
+					"route_version": 1,
+					"status": "expired",
+					"created_at": "2025-01-01T00:00:00Z",
+					"updated_at": "2025-01-01T00:00:00Z",
+					"path": "/a/route-capability-1",
+					"url": "https://view.example.test/a/route-capability-1"
+				}
+			]
+		}`))
+	}))
+	defer server.Close()
+
+	generated, err := api.NewClientWithResponses(
+		server.URL,
+		api.WithRequestEditorFn(func(_ context.Context, req *http.Request) error {
+			req.Header.Set("Authorization", "Bearer owner-token")
+			return nil
+		}),
+	)
+	if err != nil {
+		t.Fatalf("NewClientWithResponses() error = %v", err)
+	}
+
+	resp, err := generated.ListOwnerAgentRoutesWithResponse(context.Background())
+	if err != nil {
+		t.Fatalf("ListOwnerAgentRoutesWithResponse() error = %v", err)
+	}
+	if resp.StatusCode() != http.StatusOK || resp.JSON200 == nil || resp.JSON200.Data == nil {
+		t.Fatalf("unexpected typed response: status=%d body=%+v", resp.StatusCode(), resp.JSON200)
+	}
+	routes := *resp.JSON200.Data
+	if len(routes) != 2 {
+		t.Fatalf("route count = %d, want 2", len(routes))
+	}
+	if routes[0].Id != "route-capability-2" || routes[0].AgentId != "agent-2" || routes[0].Status != api.Active {
+		t.Errorf("unexpected first route: %+v", routes[0])
+	}
+	if routes[1].Id != "route-capability-1" || routes[1].AgentId != "agent-1" || routes[1].Status != api.Expired {
+		t.Errorf("unexpected second route: %+v", routes[1])
+	}
+	if routes[1].ExpiresAt == nil || routes[1].Url == nil {
+		t.Errorf("nullable fields were not decoded: %+v", routes[1])
+	}
+}
+
 type recordingLogger struct {
 	messages []string
 }
