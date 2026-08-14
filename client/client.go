@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/mirako-ai/mirako-go/api"
@@ -65,13 +66,37 @@ func (c *Client) authRequestEditor(ctx context.Context, req *http.Request) error
 }
 
 func (c *Client) loggingRequestEditor(ctx context.Context, req *http.Request) error {
-	c.logger.Logf("Request: %s %s", req.Method, req.URL.String())
+	redacted := redactRequestForObservability(req)
+	c.logger.Logf("Request: %s %s", redacted.Method, redacted.URL.String())
 	return nil
 }
 
 func (c *Client) tracingRequestEditor(ctx context.Context, req *http.Request) error {
-	c.tracer.TraceRequest(ctx, req)
+	c.tracer.TraceRequest(ctx, redactRequestForObservability(req))
 	return nil
+}
+
+func redactRequestForObservability(req *http.Request) *http.Request {
+	redacted := req.Clone(req.Context())
+	redactedURL := *req.URL
+	redactedURL.Path = redactAgentRoutePath(redactedURL.Path)
+	redactedURL.RawPath = ""
+	redacted.URL = &redactedURL
+	redacted.Header = req.Header.Clone()
+	if redacted.Header.Get("Authorization") != "" {
+		redacted.Header.Set("Authorization", "REDACTED")
+	}
+	return redacted
+}
+
+func redactAgentRoutePath(value string) string {
+	segments := strings.Split(value, "/")
+	for i := 0; i+1 < len(segments); i++ {
+		if segments[i] == "agent-routes" {
+			segments[i+1] = "REDACTED"
+		}
+	}
+	return strings.Join(segments, "/")
 }
 
 func (c *Client) Do(req *http.Request) (*http.Response, error) {
