@@ -28,9 +28,9 @@ const (
 
 // Defines values for AgentRouteResponseStatus.
 const (
-	Active  AgentRouteResponseStatus = "active"
-	Expired AgentRouteResponseStatus = "expired"
-	Revoked AgentRouteResponseStatus = "revoked"
+	AgentRouteResponseStatusActive  AgentRouteResponseStatus = "active"
+	AgentRouteResponseStatusExpired AgentRouteResponseStatus = "expired"
+	AgentRouteResponseStatusRevoked AgentRouteResponseStatus = "revoked"
 )
 
 // Defines values for AsyncGenerateImageApiRequestBodyAspectRatio.
@@ -134,9 +134,22 @@ const (
 	GenerateTaskOutputStatusTIMEDOUT   GenerateTaskOutputStatus = "TIMED_OUT"
 )
 
+// Defines values for ReconciliationSnapshotStatus.
+const (
+	ReconciliationSnapshotStatusActive  ReconciliationSnapshotStatus = "active"
+	ReconciliationSnapshotStatusExpired ReconciliationSnapshotStatus = "expired"
+	ReconciliationSnapshotStatusMissing ReconciliationSnapshotStatus = "missing"
+	ReconciliationSnapshotStatusRevoked ReconciliationSnapshotStatus = "revoked"
+)
+
 // Defines values for StartSessionApiRequestBodyModel.
 const (
 	Metis25 StartSessionApiRequestBodyModel = "metis-2.5"
+)
+
+// Defines values for SystemAgentRouteResponseStatus.
+const (
+	Active SystemAgentRouteResponseStatus = "active"
 )
 
 // Defines values for TTSApiRequestBodyChineseLanguage.
@@ -154,6 +167,19 @@ const (
 const (
 	UpdateAgentInputRuntimeKindCustomAgent  UpdateAgentInputRuntimeKind = "custom_agent"
 	UpdateAgentInputRuntimeKindManagedAgent UpdateAgentInputRuntimeKind = "managed_agent"
+)
+
+// Defines values for UpscaleImageParamsOutscale.
+const (
+	N2 UpscaleImageParamsOutscale = "2"
+	N4 UpscaleImageParamsOutscale = "4"
+)
+
+// Defines values for UpscaleVideoParamsResolution.
+const (
+	N1080p UpscaleVideoParamsResolution = "1080p"
+	N2k    UpscaleVideoParamsResolution = "2k"
+	N4k    UpscaleVideoParamsResolution = "4k"
 )
 
 // Agent defines model for Agent.
@@ -263,7 +289,7 @@ type AgentRouteResponse struct {
 	// CreatedAt Creation timestamp
 	CreatedAt time.Time `json:"created_at"`
 
-	// ExpiresAt Absolute UTC expiration time, or null for a permanent route
+	// ExpiresAt Absolute expiration time, or null
 	ExpiresAt *time.Time `json:"expires_at"`
 
 	// Id Route UUIDv4 bearer capability
@@ -278,7 +304,7 @@ type AgentRouteResponse struct {
 	// RevokedAt Manual revocation time, or null
 	RevokedAt *time.Time `json:"revoked_at"`
 
-	// RouteVersion Monotonic route lifecycle version
+	// RouteVersion Monotonic lifecycle version
 	RouteVersion int64 `json:"route_version"`
 
 	// Status Derived route status
@@ -287,7 +313,7 @@ type AgentRouteResponse struct {
 	// UpdatedAt Last persisted update timestamp
 	UpdatedAt time.Time `json:"updated_at"`
 
-	// Url Absolute metis-view URL when configured
+	// Url Absolute metis-view URL when METIS_VIEW_PUBLIC_URL is configured
 	Url *string `json:"url,omitempty"`
 }
 
@@ -574,10 +600,10 @@ type CreateAgentRouteApiResponseBody struct {
 // CreateAgentRouteInput defines model for CreateAgentRouteInput.
 type CreateAgentRouteInput struct {
 	// Label Optional owner-facing label
-	Label *string `json:"label,omitempty"`
+	Label *string `json:"label"`
 
-	// ValiditySeconds Positive validity duration in seconds. Omit for a permanent route.
-	ValiditySeconds *int64 `json:"validity_seconds,omitempty"`
+	// ValiditySeconds Positive validity duration in seconds. Omit or use null for a permanent route.
+	ValiditySeconds *int64 `json:"validity_seconds"`
 }
 
 // CreateApiTokenOutput defines model for CreateApiTokenOutput.
@@ -960,6 +986,15 @@ type GetPremadeProfilesApiResponseBody struct {
 	Data *[]PresignedVoiceProfile `json:"data"`
 }
 
+// GetProductsApiResponseBody defines model for GetProductsApiResponseBody.
+type GetProductsApiResponseBody struct {
+	// Data In-memory product table rows
+	Data *[]Product `json:"data"`
+
+	// SnapshotAt Timestamp when the product table snapshot was loaded
+	SnapshotAt time.Time `json:"snapshot_at"`
+}
+
 // GetSessionProfileApiResponseBody defines model for GetSessionProfileApiResponseBody.
 type GetSessionProfileApiResponseBody struct {
 	Data *MetisSessionProfile `json:"data,omitempty"`
@@ -1197,11 +1232,75 @@ type PrivateApiResponseBody struct {
 	Message string `json:"message"`
 }
 
+// Product defines model for Product.
+type Product struct {
+	Description string    `json:"description"`
+	LastUpdate  time.Time `json:"last_update"`
+	ProductCode string    `json:"product_code"`
+	UnitCost    float64   `json:"unit_cost"`
+}
+
+// ReconcileAgentRoutesApiResponseBody defines model for ReconcileAgentRoutesApiResponseBody.
+type ReconcileAgentRoutesApiResponseBody struct {
+	// Data Lifecycle snapshots in the same order as route_ids
+	Data *[]ReconciliationSnapshot `json:"data"`
+}
+
+// ReconcileAgentRoutesInput defines model for ReconcileAgentRoutesInput.
+type ReconcileAgentRoutesInput struct {
+	// RouteIds Routes represented by local active sessions
+	RouteIds *[]string `json:"route_ids"`
+}
+
+// ReconciliationSnapshot defines model for ReconciliationSnapshot.
+type ReconciliationSnapshot struct {
+	// ExpiresAt Absolute expiration time, or null
+	ExpiresAt *time.Time `json:"expires_at"`
+
+	// RevokedAt Manual revocation time, or null
+	RevokedAt *time.Time `json:"revoked_at"`
+
+	// RouteId Requested route identifier
+	RouteId string `json:"route_id"`
+
+	// RouteVersion Current lifecycle version, or zero when missing
+	RouteVersion int64 `json:"route_version"`
+
+	// Status Current route status
+	Status ReconciliationSnapshotStatus `json:"status"`
+}
+
+// ReconciliationSnapshotStatus Current route status
+type ReconciliationSnapshotStatus string
+
 // RemoteFile defines model for RemoteFile.
 type RemoteFile struct {
 	Bucket string `json:"bucket"`
 	Key    string `json:"key"`
 	Region string `json:"region"`
+}
+
+// ResolveAgentRouteApiResponseBody defines model for ResolveAgentRouteApiResponseBody.
+type ResolveAgentRouteApiResponseBody struct {
+	Data ResolveAgentRouteData `json:"data"`
+}
+
+// ResolveAgentRouteData defines model for ResolveAgentRouteData.
+type ResolveAgentRouteData struct {
+	Agent AgentResponse            `json:"agent"`
+	Route SystemAgentRouteResponse `json:"route"`
+}
+
+// ResolveAgentRouteInput defines model for ResolveAgentRouteInput.
+type ResolveAgentRouteInput struct {
+	// RouteId Agent route UUIDv4 bearer capability
+	RouteId string `json:"route_id"`
+}
+
+// ResponseEnvelope defines model for ResponseEnvelope.
+type ResponseEnvelope struct {
+	Data      TaskView `json:"data"`
+	RequestId string   `json:"request_id"`
 }
 
 // RevokeAgentRouteApiResponseBody defines model for RevokeAgentRouteApiResponseBody.
@@ -1236,6 +1335,12 @@ type STTOutput struct {
 
 	// Transcription The transcription of the audio
 	Transcription *[]interface{} `json:"transcription"`
+}
+
+// SafeError defines model for SafeError.
+type SafeError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
 }
 
 // StartSessionApiRequestBody defines model for StartSessionApiRequestBody.
@@ -1298,6 +1403,36 @@ type StopSessionsApiResponseBody struct {
 	Data *StopSessionOutput `json:"data,omitempty"`
 }
 
+// SystemAgentRouteResponse defines model for SystemAgentRouteResponse.
+type SystemAgentRouteResponse struct {
+	// AgentId Trusted target agent ID
+	AgentId string `json:"agent_id"`
+
+	// CreatedAt Creation timestamp
+	CreatedAt time.Time `json:"created_at"`
+
+	// ExpiresAt Absolute expiration time, or null
+	ExpiresAt *time.Time `json:"expires_at"`
+
+	// Id Route UUIDv4 bearer capability
+	Id string `json:"id"`
+
+	// RevokedAt Manual revocation time, or null
+	RevokedAt *time.Time `json:"revoked_at"`
+
+	// RouteVersion Monotonic lifecycle version
+	RouteVersion int64 `json:"route_version"`
+
+	// Status Derived route status
+	Status SystemAgentRouteResponseStatus `json:"status"`
+
+	// UpdatedAt Last persisted update timestamp
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// SystemAgentRouteResponseStatus Derived route status
+type SystemAgentRouteResponseStatus string
+
 // TTSApiRequestBody defines model for TTSApiRequestBody.
 type TTSApiRequestBody struct {
 	// ChineseLanguage This param tells the TTS to use the chinese language dialect to generate audio, and only required when generating audio with Mandarin or Cantonese. Currently supports 'mandarin' and 'yue' (i.e. Cantonese) variants.
@@ -1347,6 +1482,22 @@ type TTSParams struct {
 
 	// Temperature The temperature for the TTS model, controls the randomness of the output. Default is 1.0.
 	Temperature *float32 `json:"temperature,omitempty"`
+}
+
+// TaskView defines model for TaskView.
+type TaskView struct {
+	CompletedAt *time.Time              `json:"completed_at,omitempty"`
+	CreatedAt   time.Time               `json:"created_at"`
+	Error       *SafeError              `json:"error,omitempty"`
+	Outscale    *int64                  `json:"outscale,omitempty"`
+	Resolution  *string                 `json:"resolution,omitempty"`
+	Result      *map[string]interface{} `json:"result,omitempty"`
+	Stage       string                  `json:"stage"`
+	StartedAt   *time.Time              `json:"started_at,omitempty"`
+	Status      string                  `json:"status"`
+	StatusUrl   *string                 `json:"status_url,omitempty"`
+	TaskId      string                  `json:"task_id"`
+	TaskType    string                  `json:"task_type"`
 }
 
 // TerminateApiRequestBody defines model for TerminateApiRequestBody.
@@ -1413,6 +1564,17 @@ type UpdateAgentInputCustomAgentProtocol string
 // UpdateAgentInputRuntimeKind Runtime kind for this agent
 type UpdateAgentInputRuntimeKind string
 
+// UpdateAgentRouteApiResponseBody defines model for UpdateAgentRouteApiResponseBody.
+type UpdateAgentRouteApiResponseBody struct {
+	Data AgentRouteResponse `json:"data"`
+}
+
+// UpdateAgentRouteInput defines model for UpdateAgentRouteInput.
+type UpdateAgentRouteInput struct {
+	// Label Required owner-facing label update. Use null to clear it.
+	Label *string `json:"label"`
+}
+
 // Webhook defines model for Webhook.
 type Webhook struct {
 	// AuthToken Auth token used to authenticate the webhook via 'Authorization: Bearer' header
@@ -1421,6 +1583,36 @@ type Webhook struct {
 	// Url Webhook URL to receive the async task status
 	Url string `json:"url"`
 }
+
+// UpscaleImageMultipartBody defines parameters for UpscaleImage.
+type UpscaleImageMultipartBody struct {
+	File         openapi_types.File `json:"file"`
+	WebhookToken *string            `json:"webhook_token,omitempty"`
+	WebhookUrl   *string            `json:"webhook_url,omitempty"`
+}
+
+// UpscaleImageParams defines parameters for UpscaleImage.
+type UpscaleImageParams struct {
+	Outscale *UpscaleImageParamsOutscale `form:"outscale,omitempty" json:"outscale,omitempty"`
+}
+
+// UpscaleImageParamsOutscale defines parameters for UpscaleImage.
+type UpscaleImageParamsOutscale string
+
+// UpscaleVideoMultipartBody defines parameters for UpscaleVideo.
+type UpscaleVideoMultipartBody struct {
+	File         openapi_types.File `json:"file"`
+	WebhookToken *string            `json:"webhook_token,omitempty"`
+	WebhookUrl   *string            `json:"webhook_url,omitempty"`
+}
+
+// UpscaleVideoParams defines parameters for UpscaleVideo.
+type UpscaleVideoParams struct {
+	Resolution UpscaleVideoParamsResolution `form:"resolution" json:"resolution"`
+}
+
+// UpscaleVideoParamsResolution defines parameters for UpscaleVideo.
+type UpscaleVideoParamsResolution string
 
 // CloneVoiceAsyncMultipartBody defines parameters for CloneVoiceAsync.
 type CloneVoiceAsyncMultipartBody struct {
@@ -1444,6 +1636,9 @@ type CloneVoiceAsyncMultipartBody struct {
 	WebhookAuth *string `json:"webhook_auth,omitempty"`
 }
 
+// UpdateAgentRouteJSONRequestBody defines body for UpdateAgentRoute for application/json ContentType.
+type UpdateAgentRouteJSONRequestBody = UpdateAgentRouteInput
+
 // CreateAgentJSONRequestBody defines body for CreateAgent for application/json ContentType.
 type CreateAgentJSONRequestBody = CreateAgentInput
 
@@ -1465,6 +1660,9 @@ type GenerateImageAsyncJSONRequestBody = AsyncGenerateImageApiRequestBody
 // GenerateImageJSONRequestBody defines body for GenerateImage for application/json ContentType.
 type GenerateImageJSONRequestBody = GenerateImageApiRequestBody
 
+// UpscaleImageMultipartRequestBody defines body for UpscaleImage for multipart/form-data ContentType.
+type UpscaleImageMultipartRequestBody UpscaleImageMultipartBody
+
 // StartInteractiveSessionJSONRequestBody defines body for StartInteractiveSession for application/json ContentType.
 type StartInteractiveSessionJSONRequestBody = StartSessionApiRequestBody
 
@@ -1482,6 +1680,9 @@ type GenerateAvatarMotionAsyncJSONRequestBody = AsyncGenerateAvatarMotionApiRequ
 
 // GenerateTalkingAvatarAsyncJSONRequestBody defines body for GenerateTalkingAvatarAsync for application/json ContentType.
 type GenerateTalkingAvatarAsyncJSONRequestBody = AsyncGenerateTalkingAvatarApiRequestBody
+
+// UpscaleVideoMultipartRequestBody defines body for UpscaleVideo for multipart/form-data ContentType.
+type UpscaleVideoMultipartRequestBody UpscaleVideoMultipartBody
 
 // CloneVoiceAsyncMultipartRequestBody defines body for CloneVoiceAsync for multipart/form-data ContentType.
 type CloneVoiceAsyncMultipartRequestBody CloneVoiceAsyncMultipartBody
@@ -2108,6 +2309,11 @@ type ClientInterface interface {
 	// RevokeAgentRoute request
 	RevokeAgentRoute(ctx context.Context, routeId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// UpdateAgentRouteWithBody request with any body
+	UpdateAgentRouteWithBody(ctx context.Context, routeId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateAgentRoute(ctx context.Context, routeId string, body UpdateAgentRouteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListAgents request
 	ListAgents(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -2170,6 +2376,12 @@ type ClientInterface interface {
 
 	GenerateImage(ctx context.Context, body GenerateImageJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// UpscaleImageWithBody request with any body
+	UpscaleImageWithBody(ctx context.Context, params *UpscaleImageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetImageUpscaleTask request
+	GetImageUpscaleTask(ctx context.Context, taskId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListInteractiveSessions request
 	ListInteractiveSessions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -2211,6 +2423,12 @@ type ClientInterface interface {
 
 	// GetTalkingAvatarGenerationStatus request
 	GetTalkingAvatarGenerationStatus(ctx context.Context, taskId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpscaleVideoWithBody request with any body
+	UpscaleVideoWithBody(ctx context.Context, params *UpscaleVideoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetVideoUpscaleTask request
+	GetVideoUpscaleTask(ctx context.Context, taskId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CloneVoiceAsyncWithBody request with any body
 	CloneVoiceAsyncWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -2257,6 +2475,30 @@ func (c *Client) GetAgentRoute(ctx context.Context, routeId string, reqEditors .
 
 func (c *Client) RevokeAgentRoute(ctx context.Context, routeId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRevokeAgentRouteRequest(c.Server, routeId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateAgentRouteWithBody(ctx context.Context, routeId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateAgentRouteRequestWithBody(c.Server, routeId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateAgentRoute(ctx context.Context, routeId string, body UpdateAgentRouteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateAgentRouteRequest(c.Server, routeId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2543,6 +2785,30 @@ func (c *Client) GenerateImage(ctx context.Context, body GenerateImageJSONReques
 	return c.Client.Do(req)
 }
 
+func (c *Client) UpscaleImageWithBody(ctx context.Context, params *UpscaleImageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpscaleImageRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetImageUpscaleTask(ctx context.Context, taskId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetImageUpscaleTaskRequest(c.Server, taskId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) ListInteractiveSessions(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListInteractiveSessionsRequest(c.Server)
 	if err != nil {
@@ -2735,6 +3001,30 @@ func (c *Client) GetTalkingAvatarGenerationStatus(ctx context.Context, taskId st
 	return c.Client.Do(req)
 }
 
+func (c *Client) UpscaleVideoWithBody(ctx context.Context, params *UpscaleVideoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpscaleVideoRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetVideoUpscaleTask(ctx context.Context, taskId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetVideoUpscaleTaskRequest(c.Server, taskId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *Client) CloneVoiceAsyncWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCloneVoiceAsyncRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -2898,6 +3188,53 @@ func NewRevokeAgentRouteRequest(server string, routeId string) (*http.Request, e
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewUpdateAgentRouteRequest calls the generic UpdateAgentRoute builder with application/json body
+func NewUpdateAgentRouteRequest(server string, routeId string, body UpdateAgentRouteJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateAgentRouteRequestWithBody(server, routeId, "application/json", bodyReader)
+}
+
+// NewUpdateAgentRouteRequestWithBody generates requests for UpdateAgentRoute with any type of body
+func NewUpdateAgentRouteRequestWithBody(server string, routeId string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "route_id", runtime.ParamLocationPath, routeId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/agent-routes/%s/update", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -3488,6 +3825,91 @@ func NewGenerateImageRequestWithBody(server string, contentType string, body io.
 	return req, nil
 }
 
+// NewUpscaleImageRequestWithBody generates requests for UpscaleImage with any type of body
+func NewUpscaleImageRequestWithBody(server string, params *UpscaleImageParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/image/upscale")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Outscale != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "outscale", runtime.ParamLocationQuery, *params.Outscale); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetImageUpscaleTaskRequest generates requests for GetImageUpscaleTask
+func NewGetImageUpscaleTaskRequest(server string, taskId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "task_id", runtime.ParamLocationPath, taskId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/image/upscale/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListInteractiveSessionsRequest generates requests for ListInteractiveSessions
 func NewListInteractiveSessionsRequest(server string) (*http.Request, error) {
 	var err error
@@ -3857,6 +4279,87 @@ func NewGetTalkingAvatarGenerationStatusRequest(server string, taskId string) (*
 	return req, nil
 }
 
+// NewUpscaleVideoRequestWithBody generates requests for UpscaleVideo with any type of body
+func NewUpscaleVideoRequestWithBody(server string, params *UpscaleVideoParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/video/upscale")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "resolution", runtime.ParamLocationQuery, params.Resolution); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetVideoUpscaleTaskRequest generates requests for GetVideoUpscaleTask
+func NewGetVideoUpscaleTaskRequest(server string, taskId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "task_id", runtime.ParamLocationPath, taskId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v1/video/upscale/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewCloneVoiceAsyncRequestWithBody generates requests for CloneVoiceAsync with any type of body
 func NewCloneVoiceAsyncRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
@@ -4094,6 +4597,11 @@ type ClientWithResponsesInterface interface {
 	// RevokeAgentRouteWithResponse request
 	RevokeAgentRouteWithResponse(ctx context.Context, routeId string, reqEditors ...RequestEditorFn) (*RevokeAgentRouteResponse, error)
 
+	// UpdateAgentRouteWithBodyWithResponse request with any body
+	UpdateAgentRouteWithBodyWithResponse(ctx context.Context, routeId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAgentRouteResponse, error)
+
+	UpdateAgentRouteWithResponse(ctx context.Context, routeId string, body UpdateAgentRouteJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAgentRouteResponse, error)
+
 	// ListAgentsWithResponse request
 	ListAgentsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListAgentsResponse, error)
 
@@ -4156,6 +4664,12 @@ type ClientWithResponsesInterface interface {
 
 	GenerateImageWithResponse(ctx context.Context, body GenerateImageJSONRequestBody, reqEditors ...RequestEditorFn) (*GenerateImageResponse, error)
 
+	// UpscaleImageWithBodyWithResponse request with any body
+	UpscaleImageWithBodyWithResponse(ctx context.Context, params *UpscaleImageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpscaleImageResponse, error)
+
+	// GetImageUpscaleTaskWithResponse request
+	GetImageUpscaleTaskWithResponse(ctx context.Context, taskId string, reqEditors ...RequestEditorFn) (*GetImageUpscaleTaskResponse, error)
+
 	// ListInteractiveSessionsWithResponse request
 	ListInteractiveSessionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListInteractiveSessionsResponse, error)
 
@@ -4197,6 +4711,12 @@ type ClientWithResponsesInterface interface {
 
 	// GetTalkingAvatarGenerationStatusWithResponse request
 	GetTalkingAvatarGenerationStatusWithResponse(ctx context.Context, taskId string, reqEditors ...RequestEditorFn) (*GetTalkingAvatarGenerationStatusResponse, error)
+
+	// UpscaleVideoWithBodyWithResponse request with any body
+	UpscaleVideoWithBodyWithResponse(ctx context.Context, params *UpscaleVideoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpscaleVideoResponse, error)
+
+	// GetVideoUpscaleTaskWithResponse request
+	GetVideoUpscaleTaskWithResponse(ctx context.Context, taskId string, reqEditors ...RequestEditorFn) (*GetVideoUpscaleTaskResponse, error)
 
 	// CloneVoiceAsyncWithBodyWithResponse request with any body
 	CloneVoiceAsyncWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CloneVoiceAsyncResponse, error)
@@ -4280,6 +4800,29 @@ func (r RevokeAgentRouteResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r RevokeAgentRouteResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateAgentRouteResponse struct {
+	Body                          []byte
+	HTTPResponse                  *http.Response
+	JSON200                       *UpdateAgentRouteApiResponseBody
+	ApplicationproblemJSONDefault *ErrorModel
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateAgentRouteResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateAgentRouteResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -4653,6 +5196,67 @@ func (r GenerateImageResponse) StatusCode() int {
 	return 0
 }
 
+type UpscaleImageResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *struct {
+		Data      TaskView `json:"data"`
+		RequestId string   `json:"request_id"`
+	}
+	ApplicationproblemJSONDefault *struct {
+		Code      string  `json:"code"`
+		Detail    *string `json:"detail,omitempty"`
+		RequestId string  `json:"request_id"`
+		Status    int64   `json:"status"`
+		TaskId    *string `json:"task_id,omitempty"`
+		Title     *string `json:"title,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r UpscaleImageResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpscaleImageResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetImageUpscaleTaskResponse struct {
+	Body                      []byte
+	HTTPResponse              *http.Response
+	JSON200                   *ResponseEnvelope
+	ApplicationproblemJSON401 *ErrorModel
+	ApplicationproblemJSON403 *ErrorModel
+	ApplicationproblemJSON404 *ErrorModel
+	ApplicationproblemJSON410 *ErrorModel
+	ApplicationproblemJSON422 *ErrorModel
+	ApplicationproblemJSON500 *ErrorModel
+}
+
+// Status returns HTTPResponse.Status
+func (r GetImageUpscaleTaskResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetImageUpscaleTaskResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListInteractiveSessionsResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
@@ -4883,6 +5487,67 @@ func (r GetTalkingAvatarGenerationStatusResponse) StatusCode() int {
 	return 0
 }
 
+type UpscaleVideoResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON202      *struct {
+		Data      TaskView `json:"data"`
+		RequestId string   `json:"request_id"`
+	}
+	ApplicationproblemJSONDefault *struct {
+		Code      string  `json:"code"`
+		Detail    *string `json:"detail,omitempty"`
+		RequestId string  `json:"request_id"`
+		Status    int64   `json:"status"`
+		TaskId    *string `json:"task_id,omitempty"`
+		Title     *string `json:"title,omitempty"`
+	}
+}
+
+// Status returns HTTPResponse.Status
+func (r UpscaleVideoResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpscaleVideoResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetVideoUpscaleTaskResponse struct {
+	Body                      []byte
+	HTTPResponse              *http.Response
+	JSON200                   *ResponseEnvelope
+	ApplicationproblemJSON401 *ErrorModel
+	ApplicationproblemJSON403 *ErrorModel
+	ApplicationproblemJSON404 *ErrorModel
+	ApplicationproblemJSON410 *ErrorModel
+	ApplicationproblemJSON422 *ErrorModel
+	ApplicationproblemJSON500 *ErrorModel
+}
+
+// Status returns HTTPResponse.Status
+func (r GetVideoUpscaleTaskResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetVideoUpscaleTaskResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type CloneVoiceAsyncResponse struct {
 	Body                          []byte
 	HTTPResponse                  *http.Response
@@ -5046,6 +5711,23 @@ func (c *ClientWithResponses) RevokeAgentRouteWithResponse(ctx context.Context, 
 		return nil, err
 	}
 	return ParseRevokeAgentRouteResponse(rsp)
+}
+
+// UpdateAgentRouteWithBodyWithResponse request with arbitrary body returning *UpdateAgentRouteResponse
+func (c *ClientWithResponses) UpdateAgentRouteWithBodyWithResponse(ctx context.Context, routeId string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateAgentRouteResponse, error) {
+	rsp, err := c.UpdateAgentRouteWithBody(ctx, routeId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateAgentRouteResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateAgentRouteWithResponse(ctx context.Context, routeId string, body UpdateAgentRouteJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateAgentRouteResponse, error) {
+	rsp, err := c.UpdateAgentRoute(ctx, routeId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateAgentRouteResponse(rsp)
 }
 
 // ListAgentsWithResponse request returning *ListAgentsResponse
@@ -5248,6 +5930,24 @@ func (c *ClientWithResponses) GenerateImageWithResponse(ctx context.Context, bod
 	return ParseGenerateImageResponse(rsp)
 }
 
+// UpscaleImageWithBodyWithResponse request with arbitrary body returning *UpscaleImageResponse
+func (c *ClientWithResponses) UpscaleImageWithBodyWithResponse(ctx context.Context, params *UpscaleImageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpscaleImageResponse, error) {
+	rsp, err := c.UpscaleImageWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpscaleImageResponse(rsp)
+}
+
+// GetImageUpscaleTaskWithResponse request returning *GetImageUpscaleTaskResponse
+func (c *ClientWithResponses) GetImageUpscaleTaskWithResponse(ctx context.Context, taskId string, reqEditors ...RequestEditorFn) (*GetImageUpscaleTaskResponse, error) {
+	rsp, err := c.GetImageUpscaleTask(ctx, taskId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetImageUpscaleTaskResponse(rsp)
+}
+
 // ListInteractiveSessionsWithResponse request returning *ListInteractiveSessionsResponse
 func (c *ClientWithResponses) ListInteractiveSessionsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListInteractiveSessionsResponse, error) {
 	rsp, err := c.ListInteractiveSessions(ctx, reqEditors...)
@@ -5386,6 +6086,24 @@ func (c *ClientWithResponses) GetTalkingAvatarGenerationStatusWithResponse(ctx c
 	return ParseGetTalkingAvatarGenerationStatusResponse(rsp)
 }
 
+// UpscaleVideoWithBodyWithResponse request with arbitrary body returning *UpscaleVideoResponse
+func (c *ClientWithResponses) UpscaleVideoWithBodyWithResponse(ctx context.Context, params *UpscaleVideoParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpscaleVideoResponse, error) {
+	rsp, err := c.UpscaleVideoWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpscaleVideoResponse(rsp)
+}
+
+// GetVideoUpscaleTaskWithResponse request returning *GetVideoUpscaleTaskResponse
+func (c *ClientWithResponses) GetVideoUpscaleTaskWithResponse(ctx context.Context, taskId string, reqEditors ...RequestEditorFn) (*GetVideoUpscaleTaskResponse, error) {
+	rsp, err := c.GetVideoUpscaleTask(ctx, taskId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetVideoUpscaleTaskResponse(rsp)
+}
+
 // CloneVoiceAsyncWithBodyWithResponse request with arbitrary body returning *CloneVoiceAsyncResponse
 func (c *ClientWithResponses) CloneVoiceAsyncWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CloneVoiceAsyncResponse, error) {
 	rsp, err := c.CloneVoiceAsyncWithBody(ctx, contentType, body, reqEditors...)
@@ -5522,6 +6240,39 @@ func ParseRevokeAgentRouteResponse(rsp *http.Response) (*RevokeAgentRouteRespons
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest RevokeAgentRouteApiResponseBody
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest ErrorModel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateAgentRouteResponse parses an HTTP response from a UpdateAgentRouteWithResponse call
+func ParseUpdateAgentRouteResponse(rsp *http.Response) (*UpdateAgentRouteResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateAgentRouteResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest UpdateAgentRouteApiResponseBody
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -6060,6 +6811,117 @@ func ParseGenerateImageResponse(rsp *http.Response) (*GenerateImageResponse, err
 	return response, nil
 }
 
+// ParseUpscaleImageResponse parses an HTTP response from a UpscaleImageWithResponse call
+func ParseUpscaleImageResponse(rsp *http.Response) (*UpscaleImageResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpscaleImageResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			Data      TaskView `json:"data"`
+			RequestId string   `json:"request_id"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest struct {
+			Code      string  `json:"code"`
+			Detail    *string `json:"detail,omitempty"`
+			RequestId string  `json:"request_id"`
+			Status    int64   `json:"status"`
+			TaskId    *string `json:"task_id,omitempty"`
+			Title     *string `json:"title,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetImageUpscaleTaskResponse parses an HTTP response from a GetImageUpscaleTaskWithResponse call
+func ParseGetImageUpscaleTaskResponse(rsp *http.Response) (*GetImageUpscaleTaskResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetImageUpscaleTaskResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ResponseEnvelope
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorModel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorModel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorModel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 410:
+		var dest ErrorModel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSON410 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorModel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorModel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListInteractiveSessionsResponse parses an HTTP response from a ListInteractiveSessionsWithResponse call
 func ParseListInteractiveSessionsResponse(rsp *http.Response) (*ListInteractiveSessionsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -6390,6 +7252,117 @@ func ParseGetTalkingAvatarGenerationStatusResponse(rsp *http.Response) (*GetTalk
 	return response, nil
 }
 
+// ParseUpscaleVideoResponse parses an HTTP response from a UpscaleVideoWithResponse call
+func ParseUpscaleVideoResponse(rsp *http.Response) (*UpscaleVideoResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpscaleVideoResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest struct {
+			Data      TaskView `json:"data"`
+			RequestId string   `json:"request_id"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && true:
+		var dest struct {
+			Code      string  `json:"code"`
+			Detail    *string `json:"detail,omitempty"`
+			RequestId string  `json:"request_id"`
+			Status    int64   `json:"status"`
+			TaskId    *string `json:"task_id,omitempty"`
+			Title     *string `json:"title,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSONDefault = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetVideoUpscaleTaskResponse parses an HTTP response from a GetVideoUpscaleTaskWithResponse call
+func ParseGetVideoUpscaleTaskResponse(rsp *http.Response) (*GetVideoUpscaleTaskResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetVideoUpscaleTaskResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ResponseEnvelope
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorModel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorModel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorModel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 410:
+		var dest ErrorModel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSON410 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest ErrorModel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorModel
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.ApplicationproblemJSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseCloneVoiceAsyncResponse parses an HTTP response from a CloneVoiceAsyncWithResponse call
 func ParseCloneVoiceAsyncResponse(rsp *http.Response) (*CloneVoiceAsyncResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -6591,163 +7564,190 @@ func ParseGetVoiceProfileResponse(rsp *http.Response) (*GetVoiceProfileResponse,
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"H4sIAAAAAAAC/+x9a28bObLoXyF0L+BdXEl+JrPxwfkgx07Wu3HiseXZuzMIdKhuSuK4m+wh2XK0g/z3",
+	"A776yX7p4TiOgXyI1XwUi8WqYrEef/Y8GkaUICJ47/TPHvcWKITqv6M5IkL+B/o+FpgSGFwzGiEmMOK9",
+	"0xkMOOr3osxPf/bgEgrIJtiXf/iIewxHsmvvtDdSn0DMkQ+mKyAWCEA1Q7+HvsAwClDvtAcPp0fesX8y",
+	"QK9mrwc//e3NweDw6Phk8Oq1/D+cej6a9fo9sYpkay4YJvPe137PYwgK5E+gKE/8Vn7DlACBQ8QFDKPc",
+	"lEcHR68GB4eDg8PxwcGp+vdrr9+bURbK0Xo+FGgguzrnjbmg4UQtZBIxKqhHAwcIqpleL+CCIRhiMge2",
+	"wxC8jRlDRAQrQEmwAkvEPBRMIJ5w/x5gDngcRZQJ5OdAzzVrBC9mTZAh4kcUEwHubj6AhwUigMVELn1y",
+	"j4kv4cgOmANlIUTET/f3zS9Dj4b7MML73gIKF2Q5KIpAfYo0uYHMz2BGWQXRjMACBdEsDiyagCZD1SVi",
+	"1I89Af6IEZfj8KELnAXkkxyypggyxCaC3iMHgP9aILFADECDEIM/3QmoTgpblMzwPGb5bRMsRgkIU0oD",
+	"BImEwXVo7gj+I0YA+4gIPMOI1aBh3bODCRcs9txbcZl+lKgMI6EgCCGBc+RrKHgOjH/TGECGAEx2BXKO",
+	"uYBEOFEfUh8FrokFYtATeInAFRKYA9WwgX+EsuXgaPjKNROBISpP9BGGCNBZxYC3hqJG5ktp0OwJKQ9+",
+	"o78CdX701mGupxmCT0RNbHCpCQ9QVn3Ici1dwAhKA16GYkypPEszTBQf5/J84ABOAwQErdnL3z73e1ig",
+	"UA4p8RcHqlOBhCFjcCVnjyO/kgl/gFwA3WAXfDjmyC117jhi4PI8t8GAPhDEcpPPTn6C3uHBdPDqb543",
+	"ODn+6WgAX73+aXCADo70qfrpjWveJcUekox/hgPkBOAX2QKYFjuRfpII0R8xlmzm9DfJRlJ8GKLvZwSz",
+	"A2h7CC0BFai6iT3mxG+ODD4nwNLp78gTEmXqJN0gHlHC0Yt60V69qBdJZ1nZY4WE55LuQ3CDRMwI8rWy",
+	"ISjgKy5QCDwYBIgpCZkugCOPITGwW/2iAr2oQC8q0IsK9KICvahALyrQJioQjQVaVw9SELhwPYZsjoTZ",
+	"5MvzrSgz7egPfYkwQ9w57GjKaRALBFSjdIa+POvyTFXNUnHeMpzbxXEkZsHd3eX58sQKJA9GcIoDLFYu",
+	"2AM4dTHgRAir0zKYQU+qLLpxC9giKBblQa8ZlXSAfKA59RKjB6CaZs/BPtzPH4UTeRTetBFmDC3pfcX+",
+	"XkESwwDIJt42t4FJlE+WiHGnCL2ihApKsAcCPEPeygsQsI0zU2IiXp+kS8JEoDlicnwuoIgdbP0cMbxE",
+	"PlDzA9Oq30MkDiUj0MKzZ4lTnmODncy5zLDQJu4dSZi53DsHH2/Jpl0qaHI+MiSRKKBXF+PL28kvlxf/",
+	"mlzfnX24fDuRn4q6VQuOmHANS/C5Q5sjnOKOJjtQzegMvVfzO81PrzXPXYfhyf/8X4ZmvdPe/9lPzdb7",
+	"xma9rxWUr5bTNzW/ZojjOUG+vjreqjuQBc8KttaDKCFXGKOwCVbaGfDsDE6MRXgsBcsN8ijzuyIrFgst",
+	"lyZ64JKQWEWpvheLhdSsLTtQiruS0YmuNrq+lL+wIbimnGOpMy1hECOulNw9GGE9214f7P3+IMwfebFu",
+	"22wukCzgEio7ZE6FOh4cHkgV6vCoqwqFlvYZxI3tP4u3tt4HzIUESPeUaj71sFwMeMBikcApsdcHPPYW",
+	"AHIgGCQc6guFmdJBAgtMHPj4u7yb2gtQgoJ+umM+5lEAV1JQYaJa3V3mNWg8GE3f+hfOexCf+CjA5I8Y",
+	"uSa/JL6kE8QBnuXWJrlR2rEP0HA+7AOC5lBdXjyGfCx4H8QkgtgHUxwEOS3bkHH5QlghmD/In+vRoNpP",
+	"JRpkkyhmEeUJ0Zfp5mqlhhlX0ag+Tt3upwlcQ3ARRmIlsaawlTlzWhf+/UEAjrhktXnjy79/v/np/ujD",
+	"my//in71fjmmo0P+zgle4zlPD/E5msE4EPLesyd/yZ9U+csm14tk0Vu7YhS4qDoX/RKTyyr8VrqZD8ne",
+	"FYRXntor2LBc3hUS0IcCduTDT+40ddlDQwdb3rx0j1ogn6+IdxbjwB9F+AYp69UZ9VdddyGEc9fZWCAw",
+	"hRy9PgGIeNRHPlAt5bGYykm1dDRWNEbDHDLwL2efbh4O/vl+Tkej0ejj7d3i4m4+Gg2Hw6y00RO0N8RI",
+	"oEjWGGM1hYylT0P0EbpEWAHb5uKrMdACxfouugaO7eGo1c6SuT7FIoqFgrYGItNqaw8EErcpiRtG4MLw",
+	"VkwQKSCVeH+HCRIxwWT+SMgfQ35/q9X4atwbqCRY/0LTBaX3rY6evhcWAEMBXI1xFaErq6CAUlQICiJG",
+	"PcS52hymZ2x3NUSMUeaeQX0CIeJcHmw8A5Cs3KYL5MWy386BrSJM7FvCTIcrgUmTE1G31SlZ6ROkrMgE",
+	"BnXXaAmC/lYAo0Llv/w4+fnu4u5CavyXHyfXN5/e31zc3so/3366uv5wMb44l3+8G11+0P97O/r49sL8",
+	"f3x5dXE++XQ33mt3b03pqLhVyYoqD9l7RBCDAmm2uZEg0bZ/N/Iy7wIZsTHXk5e0uhFgCAaYC+yBaEEF",
+	"lViHBIw4hgTMMQv09SGgZA6mAfTuwQJi1geMxsQf8AWMkA/QCvE+eECQqYc0TO6BGPAFZqIvN5P45g4w",
+	"Y5SoSwoEnAZSYYDe/VwNJcEK4ZcPiMzFond6eHBw4KA7jpDLygaJT0MgPybrThfcl8eNUCExs8RSukLA",
+	"Mj0ecBCAqbYGZ3EjOa1mtI7zFGKCwzjsnR64ztaDZldN58NwtRKpme3tQklPhGXnIbuiEoiNKB3GPqat",
+	"VCbVEii7vqByM9X9NjkBexzwCCFvkaf/u/vg/Q3+eTQanf3/n3/59d2v4eHB5ZlUpEZno9HFaH5+Iv/7",
+	"ZjQavZW//Pr+3cG/f/7v/3ZeWburdxkwuYBMyHMyYzBEffCwwN4C8AWNAx94AYIsWMk/H+xFMlnXDHpo",
+	"2EEnLGuARp+f1PGVROk3DEZQMI+xj7JcJlQbXsls8kf81eGRy1JNOW6ExTbaAJYRWMAoWoEVjckchJCA",
+	"AMbzBSbzYRswNzzhmlT6hrzLqy7vyefOR+5JsoQXRe57VOTye2gvTT+yEncpD/Bmko1HyBMTxZvcGNQt",
+	"gGrh0Gvy5rPD16dv9jLvTfLvXr93eHrY6/dOTo97/d7x6VGv3zsy/5fE9Ob08LVca8oWTTe3bOPV75JD",
+	"YO3PyuJlRByXSp+RfZqS9TrQFzFQDQaC6v/k1nUFv0jlCryyo3iQSA0tVeDkwFGsXFisS0QtASsrLfLV",
+	"rik3F/jlUvd71exJ0UHbLq/lknhB7CNrAbcCa4GAMZ9c+uAvcYz9vyopZsjLDJSzvRTll1LOORbCKNcQ",
+	"eHCGAA9xgMm8Dx6wjwZ8QUUfQDIPkA+WGD04FQC3Wn37OPr08VFvdzp0P3/OOpzrJyY+xzC4x2S+hcvj",
+	"j6NSb09D3qq697n7Xj8RYsw06gZGe0UBynmAgPx+97qClZV2yF6/lxmx1+8lA/b6PT2e/NEM1+v3ktHy",
+	"QjQ/SPmFDPL7SbPWlmIiR7lffOgd0WOvUdex09QrNYrG1vT9Wu+13GHn3uipvKOn7ras7K08WMuTXa2M",
+	"4HfK4Ypjcps/Iqp/HyCs3J73ri8+nl9+fC/J++zu8oP9/83F6Pzfe4AysHdxc/PpJkvxpkuv37M9ev2e",
+	"6tDr91TrPEXbT2WIrSv8BKcuwhPlwMjr3Yh1m9SXXjtiYp4iLdHsyphv0NjEAoUubdWoXPqzYicSnz6e",
+	"zRBDRAAYRQgySDxURjb0FtoUigUH9IGAe7QyUgcSHwRyTVIdoq2V0oLXz1hC1WZ1bd9O1au3/iOL1i2/",
+	"o7o9XHOv24nDVi21JNvm4lOKnSDlVvUIAjEXF1RcsBqhAcZLstUHw91GFLWPtEi8UHOxFVweHUHrwnxu",
+	"BWUS9liomwOzUT+CAiKZvIok2GK4j7oXO2JydhkIZFhrfsrPjxUhNAQ3hkabY4WG33GwUKNldvMAmiZU",
+	"5gI/hl3CbbIPXEfuF65MAI4l4mwYzXcRlpNZ5usT9VaWrLpVzE6y8EKETetonsxxLI6RC+f5/B3F8zzB",
+	"4JY20SwNglIFSDyWRM+Fuawj1tUI68j2taI60t3SXB8x4KOQlh7KWwRFLGGAfSxWE448SnwHFV/bJzXb",
+	"FPixCY/BUsSrbkPwKcQqKi7mSIVpqIMHQYRYCCXKdfhDjikevz6ofUE/rIQ/sQZ+rd4W452+novWi3f6",
+	"i3f6i3f69r3TnZf2F7/1p+K3bnf1Mf3XNbtWZLPR60U3Qq8j3aIQrceZnrfNynaqyDilXmtV5hwKeKsu",
+	"QI2glfuiAD2aBSYDaPvFKQCVEmzC3p4onHEYrixcYzpmeD5HbCxlnZS+iK0Bq/FHcViOgC+nA8yqvU10",
+	"bkdyQX7BGGXnSEAcdD21JsbXmbzDmGG1Zw31vJgx5GvZCPam1F8N1TXpt+PPQwHnXJu0IygWQ7HAZD7A",
+	"/p4zlUUVTi5yLjwCfXHe9pTm5n6jUZ8A1M/4c7xEBCQLdOqqasYre7PvQoMJsovbuohDSAYMQV/dNNGX",
+	"KIBEa4A8Qh6eYU/b5DC3OCVeIsoiRqcBCvOS0kCzAjNKpaJiyUKZ7TAHIebc+MeVNUK5whr/EBAYBRAT",
+	"Hy+xH8PAbLheIm9rNM/SYItbMyZcQOI5T8bdzSVgSJn+PUmCUKQqiPHJtJhsiUGXKU2tchDQ+T6ceodH",
+	"x1klO2a4yzPQ38fja/tc6lEfZec+cV6yym4VAovAiQ2+oEz0i3TF4zCEbFVYNZDjDsFYEpc+DMZPlVAB",
+	"vAUkcwSmSDwgqcMkqEveVBRK8pg7gz64qXZTS5UzaxuCUxqL02kASdmuW9paWlyWT704RETAnH3SAVfl",
+	"jnL7U+N+uhhCGhmxZkDfxRfBYP0FrDQpQ7NJ4vxRd8ZuUEgFeucKHNfzfq5dUiHYo9vCEtfLindeB5sX",
+	"cNJGVjtwbu2tE0xmiE0iyGDY6VqrXuyJpTPVHwnEeEJSSSqXIrryhrwywTOIyUQY39GEwGYBzRrlSRxO",
+	"jX0kp9+nnet3Sr8r715NSmccQ35fF3TnbLkmBdVJ/WrH3Rw9taWDUdIOhIa4gOJQighmyaKsl28zRThd",
+	"DZVhNxM5qB+DlM21SGnN0uTF9+Yb+964PPc3451kjomyvksaw2SeMJBiDhwfBRm+pZ5RMlberEir4Dj9",
+	"TY+ZdjyfWCOze0MSE7T1aFCdtJtFAeBkk15ljZg0ngbIBX0GR5jMHO6QmRMtG2ROc9p16M55pLSYyUZu",
+	"+QzxOBCT6euTCReszgFyYB0gr65PDGI0lobgEwlWmcco9Zap51WDy0mlWr9nZtkb1kDCjxM8tdUc+j1B",
+	"BQyayXEsm2XQug49Fs5fZhPanrzHkoWuuZukYkOfR5WPSkY5fRMkUd7dfCgc1oQuh0+QDbzIxu9INr7E",
+	"jn3/sWNOLedHiyRzhtNtLZWMjSGyGUW0k2q/FIrVzlKRh/XbCMlu4nFtwbgTnL7ImCcvY15iOV9iOV9i",
+	"OXcXy7l2ZOYjB2Xa6dqIGgXSY0vDtnJwd9JPkzIm4B/X7w0X6KchmJY/DLupFrlwx40MYNPXJxN1K7RW",
+	"E/c75fqX3wprvX4+aGut//a33u7GHJf2m1n157bb+/hHJjN52/NT1enFzvJiZ3mmOnCO5F8MLd+zoaVO",
+	"nP6olpbd2gTW1opeGOMTZoziaUcbWwC/gwiqBNRc3Y3Hgjlf7KMT0Pmc67uGtpDhvROkj5UqJp8upDuI",
+	"ubIku4e3vrBKB+ivGQqhb6loSxcYd4hUpKcybj3G64d3TiqRdYRv9pTthAoVlr0THFySQYhCylZJ8LdQ",
+	"vguMPnTAgOrZxjuYExjxBRXOiLpxEkiXeE7kgbK9wQPkIKDQVzayNhF0LmznoanA/a2OcHq086OCyvOT",
+	"Vl2dxbc62hXljlwgSv6qOYE8bLs8xNrMm/qBmpiwVgRcZLJbPLuPGx1TwYvWhHenTFcFFeb8KZ8Y4829",
+	"emxj5ePkiQMTIJsMYhbkH3iyCVBsfo491Wf/9wjN91TiI/NDROZ7tltOLZdDn6ad/kvP0N9/8/v+yWj0",
+	"8+39r/+4mY/ORj+PRqOfR2ej0XlFDr6KyD+5DvXJXg/UXENwx3V+GRPSsVLAqpiAzOuOecnRMTz6YaIU",
+	"E6OESSsW7t63mHiLjV4XK2ryat/zQkItW8tQ1Y6RiJGzI3/YPgEIjbpFdmccJWmkE2AkL2gm+MaAkQZ2",
+	"ezQmgq3eUh/1wTyKx6sIXfocIOG5PKNNXO9kzmgcVdyVdROgmujCNUUo0jfWfOPsGxfAM4AFCNBMgJjw",
+	"CHkzjHxAGUBhJFYFyjbBKI0hdWr/Gohj92L80oZCOaWjEojJHW8nvPbTA7GJUHSaiNa81XX53BpjtQvf",
+	"vXxJcsB0WPRu1mvih3e65CQIe00tKF93cqvrNxrtTpdvuHKWQxu+05oCstp3KwSUFnsFvQUmnfN6Wo7s",
+	"fOycR/HIOpXnnjurrd/z2gFDKJsSyZsudAqo2lfJmETUV6bffN+PVKCm8W8FZKLbDBx5MUNvAxpnoU9S",
+	"bzixnmO3HQ3OpltVYJgWpeW35tp8LWFKBrX0ZprpKCjMJ4nm4bRbu7GdyXLRYNfPrDQ/oR3+cxVu7ZlY",
+	"J8Fil0NnMrWq95sAKaTT2JXvxQ/0SxGNRS5vUoiJkXMtTkkB52Ulp5Tizaivhq+4vYG06tQt7UrdgPIE",
+	"VQVylC0mVtVS3TTEN+/eHh8fv0k9JtvRcEJxxYSI6oaiHksSJ6sa+NsmYbGA2xQsbWrs9XLoaaLeUUKO",
+	"XdjDesmON8ld3MKTx2Um2sXZbKqTnaf2ysNQlaOosKmZ0Yp9k8rZrk2uhbKjD8mXiJmJlRdGawRdJB1/",
+	"Uf1qfJesRaEsavASyTs/g1jxvPXzMVtq65w+et0pXU/IJlth7ZQttlOnae62jfdoNal4Sc448tyjFbD4",
+	"djmNanaPuc5f3ZynQBtCIjJ3WlPkqhOaqoQpTWtdrCjYERg50DCMTjZhRnqu3FTnLe/gaora3S2emI6e",
+	"h5BXUDieEyhihjYk52rAc/bG7SXwH9vStFIK+hnhmjOPDreXVLA2r7ByT8ukFG6GZQRmDCPiB9ryJ9vo",
+	"7YWB6SYJ2rOZNQ1bGLatMCABiisFbwkuVwZB89DnzImkMvuXRgKYAwiM3Sl5KHQtP0dFuTyBZB673f+1",
+	"IdV8Lublr0P1bz0lEVexOmGbS4n6QtQ1W36FGQT/pIy48+9x1W7iBTiqdaqEQLc09W9k++qNred6eqBh",
+	"GB1v5vxTM21laYZKTXdsLDGlUgGurJw1M2+rfMDnRu62iQr1wuNeeNyPw+PWS2GUSVyUyWiMspllhs6H",
+	"mSfHURFbYg9NuqDZ9Cnkcq6j6xe+XcO38RJu6o9Yk82SY0VHCxQEFDxQFviJm7cuGaGmV28P0MtnWloj",
+	"4aV9/e2atDHH5B0mXC4mceQbe1Y7yWFcjyYq75/T7kqw/MpFfsyKkIxyTF46ep5DZEfOw+7C2A3yKPFw",
+	"gHb8lvgBz5C38jJeWDyxhqoTznx1MPRD4wT7rR9d7Aqw0gpuzejbe39yYWidkgLpwsr18NWggCF5o0XE",
+	"CLiAejAANU9RjmcDG1mrEiSHmNg/OyIjhbUOIwWMd7aUYYa4U80bTTkNYqGypGKWpsnvA8pUFYMq/a2x",
+	"rgJDS3pfoVxeQRLDAMgm3lbnNMh07Lt2MUG+pvqM0lZT++Pkb28OBm/aFIrSExsHk2pLfJAcTdNULfk/",
+	"iFH9LGDSyLZ7E6kStXYyvdCkwJgNXNBUrlYdKSJMtkpVntAAfG4SDQmmMyXM8kjoZ+kuRw5uQk8CKjta",
+	"l2LvHgnnGb1HK+fvDM3d8qeUKWuuF2Lm0CO6oec0WD5q2ZbSlOedHOPd3Ts+TMxNhYdOrhqKSpp66Vtt",
+	"i8AKPVq/lxQtal7pJhLFwUBTnx1wd3d5vjyxFeA8GMEpDrBYbYHFVB2/ihUrZF2QJQpohHZAfWPI73/B",
+	"6KGc1a+VO3dDDrobxSu+lxCejE9E58oBt+PxLgpWn7mKVRvcb6UadSKetMtq8yNwZXVni4Gdbu/teFwX",
+	"3J5+3vzFOWMYMlQOLs+3UoxSpYLpGKau+pj93yhKXZUCcEcBM0hUnRzk24IBmfJ38k6KPSxWQL+HgTgQ",
+	"OJT3UE6jBea2aJTTmGCHrjEK5pqk9agktWVNVH/2EPF7p8fGC6F3emCX1AXEr13K0rneWW1Bhdy6nKcC",
+	"ztCFDeLuYtGtugJn7Ab1J9Vcc+uu/spTzHpqbMS9qsu6jjOvqf52jk97NyXtncSHQJudtblVJ/PHHBy+",
+	"sr5LNkOQqYWA/CG4RSZRkUpXNTjULtQ+5rrooQrWTWfqgxDe2/pS1q2GoKWu4kQHArEQE0mKfqxy9WOi",
+	"1Hdc8Lc+fNUu0r6u/ufY+IM7aoAWn7azXkTbLPAZBGGdj9eHD1fGw0t78CdWSZu0icwNmHs8W9UlBXGO",
+	"Qkzw4Gh4MJgFkC96m1YZrQ00yNNP1jeNg71kzGxQeTrR59ZBCVWlN1WJMhrwLLKaneJijiZT5DIr3XFV",
+	"uAKW1zsEZ/J3vUDDQwMopOjz0VL/3gcPC+wtVO0UGGE/WJliGL48AyuwgEsEpvGcq9cadahirGMJM/Vu",
+	"c+ngMAeKqwxbVYFrrhE6Lj+3+NsvDJqtCJrSe/5stqwVWuLDu9WhMrPVKlPldt2A4akHaxcP8JIHW3Uk",
+	"jK4gl3h0Gv/LylPh9n0rOb65t4hGG+FC0ChC/iSxSbqf7YxfvWmdrPPyvN6I2UmBKYHSsF6+kWqQOhjy",
+	"ppwXFiDD6AycW1x4BpRWa97xMSxSlPsUVhlQ1jDxuLkli5U5VUA2R8KELqmbzoa1WdtXWv0mZm2ncbnJ",
+	"+vOEjOOVNuorSqigBHtlK/Vm9uhzxPAyMbxX2aM/u5QR9ZjmxtIHyAWIJHyKDHXTzlTkuqQlNF9twS7b",
+	"upNl5Wp/Zhbg4hzj8e1GTFKFpHA0sW4bea11FSOHvoq5dmkAAgWB1tXG41vJO2OuLyhm1MQZBPgYBsgT",
+	"ucSt6ordV8oaJcEqLYin3jGyCrmyPai39ytIfMgwkZT8FhJB5TSOQGqpHZumJo56FaM98Bc8lK1tx7+C",
+	"JWQYEqHNGWlNe9UxdUhJ9TeNkMqo3lp75/j2WruPKIoRMauqi32jPqoqcDlzRB8grLx6VE0R9ZOqLKIq",
+	"NtqEhnt5b4RcS6fu77bKoC/CCEOPkiVS2o2g8pqKvMX69pl8VVjz7Jn84qoT2bEu/1YMZcWMVtrkUgIl",
+	"v411p3On4nw8vq0T4+nn7tleU8pxKlDXb68AP3ydMQ6n9mIOoE13oNFaVzEnwWJSMSel7uG2DM7r5wDV",
+	"61OuPq0XUXEerdNViBm8p0OI99Xg+20IdfgAl2s4F27ZhrxJrtMtWJHXuYRfnqeGnvH4dvscQjGDVhfu",
+	"VAp0O40zBuehUiqIQGwJHUT7lhLBaKBtJ4qlqnxXMOZpuVDlr0I44jkbyMHwMLcTB8NDR02oUOeaV3w6",
+	"xET//8Bp6A8jKbtNWIbDqJQ2SK7QUoMwZh5PL8TkAVX50gniPE9LuQUcDg/yxsz1wXeyUPtU2dWSLqFJ",
+	"tc92d5L8VaflPcba+WuvfcmDgD7F3IOtQ8wZUpehKp87XcasY8FULqpC44w5pRMK0qtDxSfL6evyYrq/",
+	"WS2tbd7LtFNGqderzW2vkz9Yc/1GWn0hzL3O9GGbWttH8l6wRfNHFpzmRe9WWbJT2QQCvFZ3qmrdDbAU",
+	"p5ME3fVmuLRHmuZnq6Y4J0iuvblT98+nnaw1A+M6njk1b4im8ojSHkwUg3YT2oYmpSNHJtpYoG0+Vabn",
+	"pNC7MQ1p87OU5roMfVKtVhvREPEjiokYgltEfACJTrBkNHHZxQsQZAAX8nFx5DEkBjYKux7iiFFBPerS",
+	"RLKwcMEQDE11XtUhe19XN/8lYh4KJhBPuH8v5XkSOpK5luca5W/l+U9NcDs1/rcu9Mk7QGPIBIzwvrdw",
+	"F6eqDUhK9jQblZS8lZaobJS8idpkceY9NfO4BZTAwJTwwmX71eGR0x2k5jH30v2QG0IC5zbRFN/y623F",
+	"y+1l5rmwlKWj8ljWPnm2CIouDXhr8D4yXzILen3SaMlgOlPy5B4Tl/1XfwXyaxomk8CQmqYk8if29yxd",
+	"F957Cy1bv/lSKglyhgnW2ebSq66gNZv/W96vpRiY1dWMswuG+7VecnwHboJFaNcRdhV5Hm+s8VXFPA1m",
+	"0JMcW2d+1CZolfNRPR9Uy4/r5I0dPKApx8qvNm/za3xlKCBDw+vChqmj0dndUSyqpOwoFgsjWmOT31I2",
+	"R0SZMLVp+0HPCpYYgj3ZgTL8H2XrOAVnSjjvgQWCfiEqQOe50hNPZpRNzDhOBwqXgDKrVWYpQQFDHpLs",
+	"MJ+xP/M0UrY4rQYQD0w4npJclSAUtkDCU94Am7wLi9WtpG2NXo0CiRdlQ1R/vbMXOBhhYHWLgrdpVq3J",
+	"4FxSUqyqVn9Sm3M0PMhkvlM+D3KJFt/qkCmztxovXZlEQu/rV11MSnm7CiySiM97Kgft9XvJy1bvcHgw",
+	"PNCmfURghHunvePhwfC41+9FUCzUWveXh/uKOQ1MvsXTP3tzJCqS1sEgMHkZ1RlL2VuGwnyTydBjlBvu",
+	"ryQ5jUxFuUvfDPdJHtNMjJMyRmt+ouA4OjjQJggijIc9jKLAoHT/d64lvmZKjSUB65NXKrQWVJt/au3H",
+	"vCNVwhExOg1Q+P+6waOMGKrKvmtuY+LIkKdy3swS5m+fv37u93gchpCtkqSCrvyZAs65PALaRd+g+rMc",
+	"vLj5+39ah/qvlXTwHgmpi+uZVPOhGTMlCUioeuPRhBBFks2akJoyJeSqVPRMfLKKNFZrrg4zqLUFVwYU",
+	"qMMmyd/m+znNBvGkLEPz9XQztw1HkV193iHx1xYC+f5J/33ieGHDYNYi+X39si3Bj0yQbPFBUdkbApNL",
+	"AfsojKjQd0Ddt3gySsReDOl4ofdd0HtT4Mz3T/I3hty2QPVpmLmb6rXCro0cUtYTSgY6cD5Nqt5E9kWl",
+	"/wcn+5xJfCsU775Vfc1rwXKtX3d47Jouot//sTNnIXPs9Blod/galGvrxUWMNEuTYnsmlFnqU25VemSN",
+	"GbtXoJ+r7pzYg3I7KfewX8EZldMmArC0c8CjZIbnxn+gvGO6ozXB7YIfZGbowAoOdzF/C3LRrf3vimbs",
+	"5lvbZJFocgd//0/rTfl1v80929yx5flPRKsaoeb0J3foWsmqKyyUvZUz3nZrC9iMx2hbAbs1cB5Tvfwx",
+	"bAntrAhteGMIJbxACjN5Y2KQrcwb4CB1DzfitA3JZ5hLK23yh6L5ncqSrrrl4c6A+AGkSpd7Hd//0xjt",
+	"fBQgVxb8c/X7GsqK7miVlRbXtvV8NB1na42r2nZcp3cpPDLofH6CwxJZlVLUr7EpdyZMa9V8ocrtWYif",
+	"sXG4hZLewRzWnVwz1pEfimJ3auz61nau523iqjsyym9rXz3bT6YxDvzqI2OVGmK9vVR79dg/BCoUD3P1",
+	"VfkAJKdmCM5kOxU9l3Q1u2wjc/JFMHykaynIq4Nurh8fVW3H0oFUo5uy6HLmHZli1Nh6rrw79CNTbQGO",
+	"Z0W0all2z/+i6OivWeI1lXicxGtjOTvQr43rpKSZiB1qi57vkSivMN23J0EHQM9M4bCxwRuR4/6fJhjj",
+	"634aFlKpPYtcXvFqSnUq0arp+6TlrfW/qtVRVAwU5PeZVOPuOd06SRpp0lYx6TLh46rOWXrWyHumarQT",
+	"3am/XgN9B1gz10oiDgqV8eks9/Llot18uf7ebm9I+cme5x4X9qB5V9vanVLlbwWw4Daw9/K80uJkqws2",
+	"sqGNEuRtel/adoY+B686cTj5U/DW0NL3aB9KCkcWaatf63TYmoISqXa2uvRfSGjblqJnq7mJDInpJE4V",
+	"zE9dO9e4QOjravP9wThxS078P2YyO83/VF8pLmXDR7tR6NmezoUiheeZ3ics+ZRvFGrp9dS54X3CTbgu",
+	"xqtg2cJtwjnjDi8TVfN9i7uEwuFzvkq0o68mCm/mvOXDM4Uc+YDqhDcRo0vsI98Gh6o8XjakVScNV714",
+	"A8/dEbt9Qpz2R2OyTaQXR0nqETfl3aqQcUAJAv+4vnjfB9cf36vkhZLssQf+habXit4kl14wSmjMg5Wu",
+	"NYkAlBqAyqUt+wGdm2QIbmPleD2LA5uNKGL0d+TpMFf0JaIcAYagD6cBmsRE4ABAnYMGfYGeADrwbWAS",
+	"eIAoiDk4OhksaMzAlMbEh2zlerpSi7WkXuDkiiH/ESO2Sjlykpolz4JtTr6TTDzwUa/fO3FV2ql9PQrj",
+	"QOAIMrE/oywc2KjVdLIueYlMuR0z/BXyMRyb4N8MqVJPIDHQqQBytR8wgcyZ3tIEJ6ahmo3R7LaHCZ9M",
+	"5ogZLmeea4p5VOtyBD2WDkwlgf4XMBmHwPERuMJnw962fX6+o4IsO/Mw2kZhAx8JiIOKxEY1eMgmHWqR",
+	"Q6k2z5CORm1CdZoiVJdY6IjzW50N/e9xCAeSAKDA8m+VPQogU+pn2PXNUzGrrsw/VakzurRbHzYzjLVS",
+	"U6sKvx9DbHQVM4/VVLel/NbO8LhxWoUKTW5Fom+Co9X8b6G3QAOTJy4/VRF0OdhJLT/ahfZxR6CJqNec",
+	"4eTg+JEheEfZFPs+Inr6k0ee/iMV4J3UJdT0hwePPP17SlSBtZOjo0ff+YhRqZ8pDnVBhOQ9X/u9VweP",
+	"jQOVbEbeYW4RWyIG1jWGEQebqGGOaYqb+seeJJeAyYeTLaVh09i7Ix0yWXRu0/qkO/X0r8pp/1zc/Ku3",
+	"ILvT6Wf3fps+2ocuSsvw11uYTIEGmzFHOf+DOV6qvGD6G/adViazK7bgf4NMvU0qQWzBXJ8b7JFN7/ll",
+	"fz8kmWMrhW3vRGYCMjHJlEapunxDptlXmazL5KRalznLjow6NWXDHtmmU1c45/vnbpoGHATQjd5olKs6",
+	"U0VvNHKy0LQmGpiuMjyNu6iQRlXibRdUWFmh5tGpsLpuzHOgwgrKaKJCXaVgnwtR866oyxqYigYqiyb6",
+	"4gqY0+1uVbMxHetaADshq1Ih18empnId1WdARLn9zVCO/lAiGiHqeNWKiAXi+D9IjZZWxDBJyqRiplWw",
+	"XAL6SqqS1DSmt7aoxi6oqlwg5pGpylED4/unqnFu92uoaol9RAvPyROTcDikolYTS+KAjWOFbg/UkNv0",
+	"o75S4z6yN7WZ9Kn5VGfAeqaPdE5qKrtF/CJ/70LHGzlJtCLxalc1vWvbc8OuA2P3PtkNs387B22N5h/A",
+	"TdvsgNtFu83JEDC4x2RuTkgLFm86WAC2yOPHeuRHDpnJz/p0uHwZrufK5p0UtR6fz1PzZoy+FaG7OH1u",
+	"57bA6tsAskNe33L6b8Hsc5h+1p50+T3owO67uDBdXZ9oZ6V4GmKhfoIZxyWz9faZ6Hc6/da+SnrFrXyV",
+	"MnWh6k6D9Vc6PPjbQdTr944kaZ/cv3gufUvPpavrk9RH6RC8x2dSwUBgCr17RHywhAH2oUCarnzqxSEi",
+	"kpr+Pjx6fbI/Gr3N2jea5PnRj+PaNPI8FL34Nj0j3ybNo1sKhXauTWqErq5NeVGxC9emqhleXJteXJte",
+	"XJteXJt0urEyl6jhjRR7aN8LJP4r1eVrxKSUMc8msrHUy2eMhrn3FK6CO/kQXArj7c8BBAQ9FAr+igUU",
+	"YEVj4EFVygdgXbzMPNak1yzHy4wEVBWjaraVVKijqga25DVySwmhQo0+sW5dZgCjawr0RexHAcTqWJqy",
+	"13qZ5ca6VvQDXKqidgGCZGInrRu1UIaurqmti1bX5iEtvNSi2QSaYkDVbb9mhVKhXFMl/i4SLKe6eDdd",
+	"3hFJnMwGEqcqkZSTtmRp6L3FVaC0nUn1zl0uQhXZNpPWLGEIRgIECHIBXmdKnHNVw88qDcN2Cy3We8vT",
+	"ZqIEG921oLkpN48VeFggVfnGRwNCMVenWbJNCS9f0DjwwRSBSHMK5OcKQL+TAw9TyKaUSgg2q8FY4iv5",
+	"Yme3DwgJcMawwHwBHmgIDZtqVXvRXYBQ7h/JFCF0sDZVpddc7IfgcgYIFUkwXh9AYLCtx3nAQSA7WFue",
+	"n1/D1QqYypeK5dUWNTyuvrnWINbWS4uZqhtHqDB7TYwZjKuKn0mt7LobteUklVXb5M7ZCfNVxBqLnBUZ",
+	"TfHwuu4gO7dav8MEiVie2OdngHtrWNHSEF6iPqi/XerDJoZnB/tzGZnV5AaytS3LTmmxKzuyc7LHvK2l",
+	"NPqcTcVlNDssxS7KjRgKoZ/UPm2mWZtFyHTMs3+uTHQ8/VsJ64ihgc7fiHzdnmvdmcYMBHDKywqxUxsG",
+	"lLWMJ3iPxLWGTy362i5utx7cZko72zONKnBvfDOdNdCXGjtc2ULhf1Es1f9rkb6qMoU95j7n5nqmu7ze",
+	"7rZPVZ/XGtsmDstivo3ky8/y7VJAbQOOx89kn8X2s01on9saB53X5rU3IQBeZ3IucJEXWn40hv2c9b8M",
+	"/eVSnCU8++vX/w0AAP//tymCjGhTAQA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

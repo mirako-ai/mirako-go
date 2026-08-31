@@ -169,26 +169,21 @@ components:
       properties:
         agent_id:
           description: Target agent ID
-          example: b1b2c3d4-e5f6-4890-9234-567890abcdef
           type: string
         created_at:
           description: Creation timestamp
-          example: "2025-01-01T00:00:00Z"
           format: date-time
           type: string
         expires_at:
-          description: Absolute UTC expiration time, or null for a permanent route
-          example: "2025-01-02T00:00:00Z"
+          description: Absolute expiration time, or null
           format: date-time
           nullable: true
           type: string
         id:
           description: Route UUIDv4 bearer capability
-          example: a1b2c3d4-e5f6-4890-9234-567890abcdef
           type: string
         label:
           description: Optional owner-facing label
-          example: Production website
           nullable: true
           type: string
         path:
@@ -197,13 +192,11 @@ components:
           type: string
         revoked_at:
           description: Manual revocation time, or null
-          example: null
           format: date-time
           nullable: true
           type: string
         route_version:
-          description: Monotonic route lifecycle version
-          example: 1
+          description: Monotonic lifecycle version
           format: int64
           type: integer
         status:
@@ -212,16 +205,13 @@ components:
             - active
             - expired
             - revoked
-          example: active
           type: string
         updated_at:
           description: Last persisted update timestamp
-          example: "2025-01-01T00:00:00Z"
           format: date-time
           type: string
         url:
-          description: Absolute metis-view URL when configured
-          example: https://view.mirako.co/a/a1b2c3d4-e5f6-4890-9234-567890abcdef
+          description: Absolute metis-view URL when METIS_VIEW_PUBLIC_URL is configured
           type: string
       required:
         - id
@@ -710,14 +700,16 @@ components:
       properties:
         label:
           description: Optional owner-facing label
-          example: Production website
+          example: Customer demo
           maxLength: 100
+          nullable: true
           type: string
         validity_seconds:
-          description: Positive validity duration in seconds. Omit for a permanent route.
-          example: 86400
+          description: Positive validity duration in seconds. Omit or use null for a permanent route.
+          example: 3600
           format: int64
           minimum: 1
+          nullable: true
           type: integer
       type: object
     CreateApiTokenOutput:
@@ -1325,6 +1317,23 @@ components:
       required:
         - data
       type: object
+    GetProductsApiResponseBody:
+      additionalProperties: false
+      properties:
+        data:
+          description: In-memory product table rows
+          items:
+            $ref: "#/components/schemas/Product"
+          nullable: true
+          type: array
+        snapshot_at:
+          description: Timestamp when the product table snapshot was loaded
+          format: date-time
+          type: string
+      required:
+        - data
+        - snapshot_at
+      type: object
     GetSessionProfileApiResponseBody:
       additionalProperties: false
       properties:
@@ -1716,6 +1725,87 @@ components:
       required:
         - message
       type: object
+    Product:
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+        last_update:
+          format: date-time
+          type: string
+        product_code:
+          type: string
+        unit_cost:
+          format: double
+          type: number
+      required:
+        - product_code
+        - description
+        - unit_cost
+        - last_update
+      type: object
+    ReconcileAgentRoutesApiResponseBody:
+      additionalProperties: false
+      properties:
+        data:
+          description: Lifecycle snapshots in the same order as route_ids
+          items:
+            $ref: "#/components/schemas/ReconciliationSnapshot"
+          nullable: true
+          type: array
+      required:
+        - data
+      type: object
+    ReconcileAgentRoutesInput:
+      additionalProperties: false
+      properties:
+        route_ids:
+          description: Routes represented by local active sessions
+          items:
+            type: string
+          maxItems: 100
+          minItems: 1
+          nullable: true
+          type: array
+      required:
+        - route_ids
+      type: object
+    ReconciliationSnapshot:
+      additionalProperties: false
+      properties:
+        expires_at:
+          description: Absolute expiration time, or null
+          format: date-time
+          nullable: true
+          type: string
+        revoked_at:
+          description: Manual revocation time, or null
+          format: date-time
+          nullable: true
+          type: string
+        route_id:
+          description: Requested route identifier
+          example: a1b2c3d4-e5f6-4890-9234-567890abcdef
+          type: string
+        route_version:
+          description: Current lifecycle version, or zero when missing
+          format: int64
+          type: integer
+        status:
+          description: Current route status
+          enum:
+            - active
+            - expired
+            - revoked
+            - missing
+          type: string
+      required:
+        - route_id
+        - status
+        - route_version
+        - expires_at
+        - revoked_at
+      type: object
     RemoteFile:
       additionalProperties: false
       properties:
@@ -1729,6 +1819,49 @@ components:
         - region
         - bucket
         - key
+      type: object
+    ResolveAgentRouteApiResponseBody:
+      additionalProperties: false
+      properties:
+        data:
+          $ref: "#/components/schemas/ResolveAgentRouteData"
+          description: Admitted route and trusted target runtime
+      required:
+        - data
+      type: object
+    ResolveAgentRouteData:
+      additionalProperties: false
+      properties:
+        agent:
+          $ref: "#/components/schemas/AgentResponse"
+          description: Trusted target agent runtime configuration, including system-only secrets
+        route:
+          $ref: "#/components/schemas/SystemAgentRouteResponse"
+          description: Authoritative admitted route lifecycle
+      required:
+        - route
+        - agent
+      type: object
+    ResolveAgentRouteInput:
+      additionalProperties: false
+      properties:
+        route_id:
+          description: Agent route UUIDv4 bearer capability
+          example: a1b2c3d4-e5f6-4890-9234-567890abcdef
+          type: string
+      required:
+        - route_id
+      type: object
+    ResponseEnvelope:
+      additionalProperties: false
+      properties:
+        data:
+          $ref: "#/components/schemas/TaskView"
+        request_id:
+          type: string
+      required:
+        - data
+        - request_id
       type: object
     RevokeAgentRouteApiResponseBody:
       additionalProperties: false
@@ -1789,6 +1922,17 @@ components:
         - id
         - text
         - transcription
+      type: object
+    SafeError:
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
       type: object
     StartSessionApiRequestBody:
       additionalProperties: false
@@ -1886,6 +2030,52 @@ components:
           $ref: "#/components/schemas/StopSessionOutput"
           description: The result of the stop sessions request
       type: object
+    SystemAgentRouteResponse:
+      additionalProperties: false
+      properties:
+        agent_id:
+          description: Trusted target agent ID
+          type: string
+        created_at:
+          description: Creation timestamp
+          format: date-time
+          type: string
+        expires_at:
+          description: Absolute expiration time, or null
+          format: date-time
+          nullable: true
+          type: string
+        id:
+          description: Route UUIDv4 bearer capability
+          type: string
+        revoked_at:
+          description: Manual revocation time, or null
+          format: date-time
+          nullable: true
+          type: string
+        route_version:
+          description: Monotonic lifecycle version
+          format: int64
+          type: integer
+        status:
+          description: Derived route status
+          enum:
+            - active
+          type: string
+        updated_at:
+          description: Last persisted update timestamp
+          format: date-time
+          type: string
+      required:
+        - id
+        - agent_id
+        - expires_at
+        - revoked_at
+        - route_version
+        - status
+        - created_at
+        - updated_at
+      type: object
     TTSApiRequestBody:
       additionalProperties: false
       properties:
@@ -1971,6 +2161,45 @@ components:
           maximum: 1
           minimum: 0
           type: number
+      type: object
+    TaskView:
+      additionalProperties: false
+      properties:
+        completed_at:
+          format: date-time
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        error:
+          $ref: "#/components/schemas/SafeError"
+        outscale:
+          format: int64
+          type: integer
+        resolution:
+          type: string
+        result:
+          additionalProperties: {}
+          type: object
+        stage:
+          type: string
+        started_at:
+          format: date-time
+          type: string
+        status:
+          type: string
+        status_url:
+          type: string
+        task_id:
+          type: string
+        task_type:
+          type: string
+      required:
+        - task_id
+        - task_type
+        - status
+        - stage
+        - created_at
       type: object
     TerminateApiRequestBody:
       additionalProperties: false
@@ -2069,6 +2298,27 @@ components:
           description: Voice profile used by the agent
           example: a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
+      type: object
+    UpdateAgentRouteApiResponseBody:
+      additionalProperties: false
+      properties:
+        data:
+          $ref: "#/components/schemas/AgentRouteResponse"
+          description: Updated agent route
+      required:
+        - data
+      type: object
+    UpdateAgentRouteInput:
+      additionalProperties: false
+      properties:
+        label:
+          description: Required owner-facing label update. Use null to clear it.
+          example: Production website
+          maxLength: 100
+          nullable: true
+          type: string
+      required:
+        - label
       type: object
     Webhook:
       additionalProperties: false
@@ -2180,6 +2430,44 @@ paths:
       security:
         - BearerAuth: []
       summary: Revoke agent route
+      tags:
+        - Agent Routes
+  /v1/agent-routes/{route_id}/update:
+    post:
+      description: Update only the non-access label of an owned route.
+      operationId: UpdateAgentRoute
+      parameters:
+        - description: Agent route ID
+          example: a1b2c3d4-e5f6-4890-9234-567890abcdef
+          in: path
+          name: route_id
+          required: true
+          schema:
+            description: Agent route ID
+            example: a1b2c3d4-e5f6-4890-9234-567890abcdef
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAgentRouteInput"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateAgentRouteApiResponseBody"
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      security:
+        - BearerAuth: []
+      summary: Update agent route label
       tags:
         - Agent Routes
   /v1/agents:
@@ -2654,6 +2942,150 @@ paths:
       summary: Generate an image
       tags:
         - Image
+  /v1/image/upscale:
+    post:
+      description: Stream one JPEG, PNG, or static WebP and synchronously create a verified PNG result. Successful output projections expose readable_until as the exact object-created plus 24-hour boundary.
+      operationId: UpscaleImage
+      parameters:
+        - in: query
+          name: outscale
+          schema:
+            default: "4"
+            enum:
+              - "2"
+              - "4"
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              additionalProperties: false
+              properties:
+                file:
+                  contentMediaType: application/octet-stream
+                  format: binary
+                  type: string
+                webhook_token:
+                  maxLength: 512
+                  type: string
+                webhook_url:
+                  format: uri
+                  maxLength: 1000
+                  type: string
+              required:
+                - file
+              type: object
+        description: JPEG, PNG, or static WebP; maximum 32 MiB.
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaskView"
+                  request_id:
+                    type: string
+                required:
+                  - data
+                  - request_id
+                type: object
+          description: Created
+        default:
+          content:
+            application/problem+json:
+              schema:
+                additionalProperties: false
+                properties:
+                  code:
+                    type: string
+                  detail:
+                    type: string
+                  request_id:
+                    type: string
+                  status:
+                    format: int64
+                    type: integer
+                  task_id:
+                    type: string
+                  title:
+                    type: string
+                required:
+                  - status
+                  - code
+                  - request_id
+                type: object
+          description: Stable Huma-compatible error envelope.
+      security:
+        - BearerAuth: []
+      summary: Upscale an image
+      tags:
+        - Image
+  /v1/image/upscale/{task_id}:
+    get:
+      operationId: GetImageUpscaleTask
+      parameters:
+        - description: GTai image upscale task ID
+          in: path
+          name: task_id
+          required: true
+          schema:
+            description: GTai image upscale task ID
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseEnvelope"
+          description: OK
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "410":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Gone
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+      security:
+        - BearerAuth: []
+      summary: Get an image upscale task
+      tags:
+        - Image
   /v1/interactive/list:
     get:
       description: List all active interactive sessions.
@@ -2930,6 +3362,151 @@ paths:
       security:
         - BearerAuth: []
       summary: Get talking avatar task status
+      tags:
+        - Video
+  /v1/video/upscale:
+    post:
+      description: Stream one MP4 and submit one asynchronous video upscale job. Successful output projections expose readable_until as the exact object-created plus 24-hour boundary.
+      operationId: UpscaleVideo
+      parameters:
+        - in: query
+          name: resolution
+          required: true
+          schema:
+            enum:
+              - 1080p
+              - 2k
+              - 4k
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              additionalProperties: false
+              properties:
+                file:
+                  contentMediaType: application/octet-stream
+                  format: binary
+                  type: string
+                webhook_token:
+                  maxLength: 512
+                  type: string
+                webhook_url:
+                  format: uri
+                  maxLength: 1000
+                  type: string
+              required:
+                - file
+              type: object
+        description: MP4; maximum 1 GiB. The backend validates the documented H.264/AAC profile.
+        required: true
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TaskView"
+                  request_id:
+                    type: string
+                required:
+                  - data
+                  - request_id
+                type: object
+          description: Accepted
+        default:
+          content:
+            application/problem+json:
+              schema:
+                additionalProperties: false
+                properties:
+                  code:
+                    type: string
+                  detail:
+                    type: string
+                  request_id:
+                    type: string
+                  status:
+                    format: int64
+                    type: integer
+                  task_id:
+                    type: string
+                  title:
+                    type: string
+                required:
+                  - status
+                  - code
+                  - request_id
+                type: object
+          description: Stable Huma-compatible error envelope.
+      security:
+        - BearerAuth: []
+      summary: Upscale a video
+      tags:
+        - Video
+  /v1/video/upscale/{task_id}:
+    get:
+      operationId: GetVideoUpscaleTask
+      parameters:
+        - description: GTai video upscale task ID
+          in: path
+          name: task_id
+          required: true
+          schema:
+            description: GTai video upscale task ID
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseEnvelope"
+          description: OK
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Not Found
+        "410":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Gone
+        "422":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Unprocessable Entity
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Internal Server Error
+      security:
+        - BearerAuth: []
+      summary: Get a video upscale task
       tags:
         - Video
   /v1/voice/clone:
