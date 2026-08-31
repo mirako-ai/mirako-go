@@ -61,7 +61,8 @@ jobs:
         if: steps.check_changes.outputs.changed == 'true'
         run: |
           go build ./...
-          echo "✅ Build successful"
+          go test ./...
+          echo "✅ Build and tests successful"
 
       - name: Determine version
         if: steps.check_changes.outputs.changed == 'true'
