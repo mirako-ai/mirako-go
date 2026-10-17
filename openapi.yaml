@@ -5,67 +5,78 @@ components:
       properties:
         avatar_id:
           description: Avatar used by the agent
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
         created_at:
           description: Creation timestamp
-          example: "2025-01-01T00:00:00Z"
+          examples:
+            - "2025-01-01T00:00:00Z"
           format: date-time
           type: string
         custom_agent_protocol:
           description: Custom agent streaming protocol. Currently only vercel_ai_sdk is supported
-          example: vercel_ai_sdk
+          examples:
+            - vercel_ai_sdk
           type: string
         custom_agent_url:
           description: Custom agent endpoint URL when runtime_kind is custom_agent
-          example: https://example.com/api/chat
+          examples:
+            - https://example.com/api/chat
           type: string
         description:
           description: Optional description for the agent
-          example: A helpful support avatar for product questions.
+          examples:
+            - A helpful support avatar for product questions.
           type: string
         has_custom_agent_bearer_token:
           description: Whether a custom agent bearer token is configured
-          example: true
+          examples:
+            - true
           type: boolean
         id:
           description: Unique identifier for the agent
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
         instruction:
           description: Instruction prompt for managed agents
-          example: You are a helpful assistant.
-          type: string
-        model:
-          description: Interactive Metis model used by the agent
-          example: metis-2.5
+          examples:
+            - You are a helpful assistant.
           type: string
         name:
           description: Name of the agent
-          example: Support Agent
+          examples:
+            - Support Agent
           type: string
         runtime_kind:
           description: Runtime kind for this agent. One of managed_agent or custom_agent
-          example: managed_agent
+          examples:
+            - managed_agent
           type: string
         tools:
           description: Tool definitions available to managed agents
-          example: []
+          examples:
+            - []
           items: {}
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
         updated_at:
           description: Last update timestamp
-          example: "2025-01-01T00:00:00Z"
+          examples:
+            - "2025-01-01T00:00:00Z"
           format: date-time
           type: string
         user_id:
           description: User ID of the agent owner
-          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          examples:
+            - f47ac10b-58cc-4372-a567-0e02b2c3d479
           type: string
         voice_profile_id:
           description: Voice profile used by the agent
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
       required:
         - id
@@ -73,7 +84,6 @@ components:
         - name
         - avatar_id
         - voice_profile_id
-        - model
         - tools
         - runtime_kind
         - has_custom_agent_bearer_token
@@ -85,71 +95,83 @@ components:
       properties:
         avatar_id:
           description: Avatar used by the agent
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
         created_at:
           description: Creation timestamp
-          example: "2025-01-01T00:00:00Z"
+          examples:
+            - "2025-01-01T00:00:00Z"
           format: date-time
           type: string
         custom_agent_bearer_token:
           description: Bearer token for the custom agent endpoint. Returned only to system callers.
-          example: secret-token
+          examples:
+            - secret-token
           type: string
         custom_agent_protocol:
           description: Custom agent streaming protocol. Currently only vercel_ai_sdk is supported
-          example: vercel_ai_sdk
+          examples:
+            - vercel_ai_sdk
           type: string
         custom_agent_url:
           description: Custom agent endpoint URL when runtime_kind is custom_agent
-          example: https://example.com/api/chat
+          examples:
+            - https://example.com/api/chat
           type: string
         description:
           description: Optional description for the agent
-          example: A helpful support avatar for product questions.
+          examples:
+            - A helpful support avatar for product questions.
           type: string
         has_custom_agent_bearer_token:
           description: Whether a custom agent bearer token is configured
-          example: true
+          examples:
+            - true
           type: boolean
         id:
           description: Unique identifier for the agent
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
         instruction:
           description: Instruction prompt for managed agents
-          example: You are a helpful assistant.
-          type: string
-        model:
-          description: Interactive Metis model used by the agent
-          example: metis-2.5
+          examples:
+            - You are a helpful assistant.
           type: string
         name:
           description: Name of the agent
-          example: Support Agent
+          examples:
+            - Support Agent
           type: string
         runtime_kind:
           description: Runtime kind for this agent. One of managed_agent or custom_agent
-          example: managed_agent
+          examples:
+            - managed_agent
           type: string
         tools:
           description: Tool definitions available to managed agents
-          example: []
+          examples:
+            - []
           items: {}
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
         updated_at:
           description: Last update timestamp
-          example: "2025-01-01T00:00:00Z"
+          examples:
+            - "2025-01-01T00:00:00Z"
           format: date-time
           type: string
         user_id:
           description: User ID of the agent owner
-          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          examples:
+            - f47ac10b-58cc-4372-a567-0e02b2c3d479
           type: string
         voice_profile_id:
           description: Voice profile used by the agent
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
       required:
         - id
@@ -157,7 +179,6 @@ components:
         - name
         - avatar_id
         - voice_profile_id
-        - model
         - tools
         - runtime_kind
         - has_custom_agent_bearer_token
@@ -177,24 +198,28 @@ components:
         expires_at:
           description: Absolute expiration time, or null
           format: date-time
-          nullable: true
-          type: string
+          type:
+            - string
+            - "null"
         id:
           description: Route UUIDv4 bearer capability
           type: string
         label:
           description: Optional owner-facing label
-          nullable: true
-          type: string
+          type:
+            - string
+            - "null"
         path:
           description: Projected metis-view path
-          example: /a/a1b2c3d4-e5f6-4890-9234-567890abcdef
+          examples:
+            - /r/a1b2c3d4-e5f6-4890-9234-567890abcdef
           type: string
         revoked_at:
           description: Manual revocation time, or null
           format: date-time
-          nullable: true
-          type: string
+          type:
+            - string
+            - "null"
         route_version:
           description: Monotonic lifecycle version
           format: int64
@@ -247,11 +272,13 @@ components:
       properties:
         auth_token_type:
           description: Type of the authentication token used for this API user. Possible values are 'api_token', 'jwt_token'
-          example: api_token
+          examples:
+            - api_token
           type: string
         created_at:
           description: Creation timestamp of the API token
-          example: "2023-10-01T12:00:00Z"
+          examples:
+            - "2023-10-01T12:00:00Z"
           format: date-time
           type: string
         events:
@@ -260,27 +287,33 @@ components:
           type: object
         hint:
           description: Hint for the API token, used for displaying in the UI
-          example: mi-AbCdE
+          examples:
+            - mi-AbCdE
           type: string
         is_delinquent:
           description: Indicates if the API user is delinquent, e.g., negative credits, unpaid bills
-          example: false
+          examples:
+            - false
           type: boolean
         label:
           description: Label for the API token, used for describing the purpose of the token
-          example: My API Token
+          examples:
+            - My API Token
           type: string
         token_id:
           description: Unique identifier for the API token. Empty if user authenticated by jwt session.
-          example: YjR7k2L9xWpZcV3oA1sF
+          examples:
+            - YjR7k2L9xWpZcV3oA1sF
           type: string
         type:
           description: Type of the API user. Default to 'user'
-          example: user
+          examples:
+            - user
           type: string
         user_id:
           description: User ID of the API token owner
-          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          examples:
+            - f47ac10b-58cc-4372-a567-0e02b2c3d479
           type: string
       required:
         - hint
@@ -297,11 +330,13 @@ components:
       properties:
         is_delinquent:
           description: Indicates if the API user is delinquent, e.g., negative credits, unpaid bills
-          example: false
+          examples:
+            - false
           type: boolean
         user_id:
           description: User ID of the API user
-          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          examples:
+            - f47ac10b-58cc-4372-a567-0e02b2c3d479
           type: string
       required:
         - user_id
@@ -311,13 +346,15 @@ components:
       additionalProperties: false
       properties:
         image:
+          contentEncoding: base64
           description: The base64 encoded image to build the avatar from
-          example: iVBORw0KGgoAAAANSUhEUgAA...
-          format: base64
+          examples:
+            - iVBORw0KGgoAAAANSUhEUgAA...
           type: string
         name:
           description: The name of the avatar
-          example: Avatar Name
+          examples:
+            - Avatar Name
           type: string
       required:
         - name
@@ -335,7 +372,8 @@ components:
       properties:
         avatar_id:
           description: The ID of the created avatar
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
       required:
         - avatar_id
@@ -381,13 +419,15 @@ components:
       properties:
         prompt:
           description: The prompt for the avatar generation.
-          example: A realistic photo of an Asian girl with long black hair, round-shaped eyes, wearing pink t-shirt, standing in front of a solid background.
+          examples:
+            - A realistic photo of an Asian girl with long black hair, round-shaped eyes, wearing pink t-shirt, standing in front of a solid background.
           maxLength: 1000
           type: string
         seed:
-          description: Random seed for the generation, if not provided a random seed will be used
-          example: 1234567890
+          deprecated: true
+          description: Nano Banana 2.1 does not support seeds. Omit this field or use 0.
           format: int64
+          maximum: 0
           minimum: 0
           type: integer
         webhook:
@@ -408,20 +448,24 @@ components:
       properties:
         audio:
           description: The base64 encoded audio file to use as the avatar's speech.
-          example: UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQ==
+          examples:
+            - UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQ==
           type: string
         image:
           description: The base64 encoded image to use as the starting frame, which should clearly showing the avatar's face.
-          example: iVBORw0KGgoAAAANSUhEUgAA...
+          examples:
+            - iVBORw0KGgoAAAANSUhEUgAA...
           type: string
         negative_prompt:
           description: The negative prompt to guide the avatar motion generation.
-          example: ""
+          examples:
+            - ""
           maxLength: 512
           type: string
         positive_prompt:
           description: The positive prompt to guide the avatar motion generation.
-          example: A happy young man laughing.
+          examples:
+            - A happy young man laughing.
           maxLength: 512
           type: string
         webhook:
@@ -482,22 +526,26 @@ components:
             - "2:3"
             - "3:4"
             - "9:16"
-          example: "16:9"
+          examples:
+            - "16:9"
           type: string
         images:
           description: Optional. List of labeld images in base64 format for text-image-to-image generation. Maximum 5 images can be provided as input.
           items:
             $ref: "#/components/schemas/LabeledImage"
           maxItems: 5
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
         prompt:
           description: The prompt for the image generation. Include in the prompt the Avatar Id (uuid) to generate image of the avatar.
-          example: A girl sitting in a cafe smiling, wide-shot, angled view.
+          examples:
+            - A girl sitting in a cafe smiling, wide-shot, angled view.
           type: string
         seed:
           description: Seed for the generation, if not provided a random seed will be used
-          example: 1234567890
+          examples:
+            - 1234567890
           format: int32
           type: integer
         webhook:
@@ -519,11 +567,13 @@ components:
       properties:
         audio:
           description: The base64 encoded audio file to use as the avatar's speech.
-          example: UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQ==
+          examples:
+            - UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQ==
           type: string
         image:
           description: The base64 encoded image to use as the avatar's face.
-          example: iVBORw0KGgoAAAANSUhEUgAA...
+          examples:
+            - iVBORw0KGgoAAAANSUhEUgAA...
           type: string
         webhook:
           $ref: "#/components/schemas/Webhook"
@@ -551,11 +601,13 @@ components:
             - FAILED
             - CANCELED
             - TIMED_OUT
-          example: IN_PROGRESS
+          examples:
+            - IN_PROGRESS
           type: string
         task_id:
           description: The id of the async task
-          example: xdac2o3c
+          examples:
+            - xdac2o3c
           type: string
       required:
         - task_id
@@ -566,16 +618,19 @@ components:
       properties:
         created_at:
           description: Creation timestamp of the avatar
-          example: "2023-10-01T12:00:00Z"
+          examples:
+            - "2023-10-01T12:00:00Z"
           format: date-time
           type: string
         id:
           description: Unique identifier for the avatar
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
         name:
           description: Name of the avatar
-          example: My Avatar
+          examples:
+            - My Avatar
           type: string
         status:
           description: Status of the avatar, either 'PENDING', 'BUILDING', 'READY' or 'ERROR'
@@ -584,23 +639,27 @@ components:
             - BUILDING
             - READY
             - ERROR
-          example: READY
+          examples:
+            - READY
           type: string
         supported_interactive_models:
           description: Interactive models supported by this avatar
           items:
             type: string
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
         themes:
           description: Avatar themes are the different appearances of the avatar, each with its own key image and live video.
           items:
             $ref: "#/components/schemas/PresignedAvatarTheme"
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
         user_id:
           description: User ID of the owner of this avatar
-          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          examples:
+            - f47ac10b-58cc-4372-a567-0e02b2c3d479
           type: string
       required:
         - id
@@ -625,41 +684,43 @@ components:
       properties:
         avatar_id:
           description: Avatar used by the agent
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
         custom_agent_bearer_token:
           description: Optional bearer token sent to the custom agent endpoint. Stored but not returned to normal users.
-          example: secret-token
+          examples:
+            - secret-token
           type: string
         custom_agent_protocol:
           default: vercel_ai_sdk
           description: Custom agent streaming protocol. Currently only vercel_ai_sdk is supported
           enum:
             - vercel_ai_sdk
-          example: vercel_ai_sdk
+          examples:
+            - vercel_ai_sdk
           type: string
         custom_agent_url:
           description: Custom agent endpoint URL. Required when runtime_kind is custom_agent.
-          example: https://example.com/api/chat
+          examples:
+            - https://example.com/api/chat
           type: string
         description:
           description: Optional description for the agent
-          example: A helpful support avatar for product questions.
+          examples:
+            - A helpful support avatar for product questions.
           maxLength: 512
           type: string
         instruction:
           description: Instruction prompt for managed agents. Required when runtime_kind is managed_agent.
-          example: You are a helpful assistant.
+          examples:
+            - You are a helpful assistant.
           maxLength: 12000
-          type: string
-        model:
-          default: metis-2.5
-          description: Interactive Metis model used by the agent
-          example: metis-2.5
           type: string
         name:
           description: Name of the agent
-          example: Support Agent
+          examples:
+            - Support Agent
           maxLength: 64
           minLength: 1
           type: string
@@ -669,17 +730,21 @@ components:
           enum:
             - managed_agent
             - custom_agent
-          example: managed_agent
+          examples:
+            - managed_agent
           type: string
         tools:
           description: Tool definitions available to managed agents
-          example: []
+          examples:
+            - []
           items: {}
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
         voice_profile_id:
           description: Voice profile used by the agent
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
       required:
         - name
@@ -700,28 +765,34 @@ components:
       properties:
         label:
           description: Optional owner-facing label
-          example: Customer demo
+          examples:
+            - Customer demo
           maxLength: 100
-          nullable: true
-          type: string
+          type:
+            - string
+            - "null"
         validity_seconds:
           description: Positive validity duration in seconds. Omit or use null for a permanent route.
-          example: 3600
+          examples:
+            - 3600
           format: int64
           minimum: 1
-          nullable: true
-          type: integer
+          type:
+            - integer
+            - "null"
       type: object
     CreateApiTokenOutput:
       additionalProperties: false
       properties:
         auth_token_type:
           description: Type of the authentication token used for this API user. Possible values are 'api_token', 'jwt_token'
-          example: api_token
+          examples:
+            - api_token
           type: string
         created_at:
           description: Creation timestamp of the API token
-          example: "2023-10-01T12:00:00Z"
+          examples:
+            - "2023-10-01T12:00:00Z"
           format: date-time
           type: string
         events:
@@ -730,29 +801,35 @@ components:
           type: object
         hint:
           description: Hint for the API token, used for displaying in the UI
-          example: mi-AbCdE
+          examples:
+            - mi-AbCdE
           type: string
         is_delinquent:
           description: Indicates if the API user is delinquent, e.g., negative credits, unpaid bills
-          example: false
+          examples:
+            - false
           type: boolean
         label:
           description: Label for the API token, used for describing the purpose of the token
-          example: My API Token
+          examples:
+            - My API Token
           type: string
         token:
           type: string
         token_id:
           description: Unique identifier for the API token. Empty if user authenticated by jwt session.
-          example: YjR7k2L9xWpZcV3oA1sF
+          examples:
+            - YjR7k2L9xWpZcV3oA1sF
           type: string
         type:
           description: Type of the API user. Default to 'user'
-          example: user
+          examples:
+            - user
           type: string
         user_id:
           description: User ID of the API token owner
-          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          examples:
+            - f47ac10b-58cc-4372-a567-0e02b2c3d479
           type: string
       required:
         - token
@@ -770,7 +847,8 @@ components:
       properties:
         label:
           description: Label for the API token
-          example: My API Token
+          examples:
+            - My API Token
           maxLength: 100
           type: string
       required:
@@ -832,32 +910,38 @@ components:
       properties:
         detail:
           description: A human-readable explanation specific to this occurrence of the problem.
-          example: Property foo is required but is missing.
+          examples:
+            - Property foo is required but is missing.
           type: string
         errors:
           description: Optional list of individual error details
           items:
             $ref: "#/components/schemas/ErrorDetail"
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
         instance:
           description: A URI reference that identifies the specific occurrence of the problem.
-          example: https://example.com/error-log/abc123
+          examples:
+            - https://example.com/error-log/abc123
           format: uri
           type: string
         status:
           description: HTTP status code
-          example: 400
+          examples:
+            - 400
           format: int64
           type: integer
         title:
           description: A short, human-readable summary of the problem type. This value should not change between occurrences of the error.
-          example: Bad Request
+          examples:
+            - Bad Request
           type: string
         type:
           default: about:blank
           description: A URI reference to human-readable documentation for the error.
-          example: https://example.com/errors/example
+          examples:
+            - https://example.com/errors/example
           format: uri
           type: string
       type: object
@@ -924,11 +1008,13 @@ components:
             - FAILED
             - CANCELED
             - TIMED_OUT
-          example: IN_PROGRESS
+          examples:
+            - IN_PROGRESS
           type: string
         task_id:
           description: The id of the async task
-          example: xdac2o3c
+          examples:
+            - xdac2o3c
           type: string
       required:
         - task_id
@@ -946,7 +1032,8 @@ components:
           type: string
         output_duration:
           description: The duration of the output video in seconds.
-          example: 5
+          examples:
+            - 5
           format: double
           type: number
         processing_info:
@@ -986,7 +1073,8 @@ components:
           type: string
         output_duration:
           description: The duration of the output video in seconds.
-          example: 5
+          examples:
+            - 5
           format: double
           type: number
         status:
@@ -998,11 +1086,13 @@ components:
             - FAILED
             - CANCELED
             - TIMED_OUT
-          example: IN_PROGRESS
+          examples:
+            - IN_PROGRESS
           type: string
         task_id:
           description: The id of the async task
-          example: xdac2o3c
+          examples:
+            - xdac2o3c
           type: string
       required:
         - task_id
@@ -1066,11 +1156,13 @@ components:
             - FAILED
             - CANCELED
             - TIMED_OUT
-          example: IN_PROGRESS
+          examples:
+            - IN_PROGRESS
           type: string
         task_id:
           description: The id of the async task
-          example: xdac2o3c
+          examples:
+            - xdac2o3c
           type: string
       required:
         - task_id
@@ -1089,22 +1181,26 @@ components:
             - "2:3"
             - "3:4"
             - "9:16"
-          example: "16:9"
+          examples:
+            - "16:9"
           type: string
         images:
           description: Optional. List of labeld images in base64 format for text-image-to-image generation. Maximum 5 images can be provided as input.
           items:
             $ref: "#/components/schemas/LabeledImage"
           maxItems: 5
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
         prompt:
           description: The prompt for the image generation. Include in the prompt the Avatar Id (uuid) to generate image of the avatar.
-          example: A girl sitting in a cafe smiling, wide-shot, angled view.
+          examples:
+            - A girl sitting in a cafe smiling, wide-shot, angled view.
           type: string
         seed:
           description: Seed for the generation, if not provided a random seed will be used
-          example: 1234567890
+          examples:
+            - 1234567890
           format: int32
           type: integer
       required:
@@ -1147,7 +1243,8 @@ components:
           type: number
         output_duration:
           description: The duration of the output video in seconds.
-          example: 5
+          examples:
+            - 5
           format: double
           type: number
         s3_info:
@@ -1175,7 +1272,8 @@ components:
           type: string
         output_duration:
           description: The duration of the output video in seconds.
-          example: 5
+          examples:
+            - 5
           format: double
           type: number
         status:
@@ -1187,11 +1285,13 @@ components:
             - FAILED
             - CANCELED
             - TIMED_OUT
-          example: IN_PROGRESS
+          examples:
+            - IN_PROGRESS
           type: string
         task_id:
           description: The id of the async task
-          example: xdac2o3c
+          examples:
+            - xdac2o3c
           type: string
       required:
         - task_id
@@ -1241,11 +1341,13 @@ components:
             - FAILED
             - CANCELED
             - TIMED_OUT
-          example: IN_PROGRESS
+          examples:
+            - IN_PROGRESS
           type: string
         task_id:
           description: The id of the async task
-          example: xdac2o3c
+          examples:
+            - xdac2o3c
           type: string
       required:
         - task_id
@@ -1312,8 +1414,9 @@ components:
           description: List of premade voice profiles
           items:
             $ref: "#/components/schemas/PresignedVoiceProfile"
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
       required:
         - data
       type: object
@@ -1324,8 +1427,9 @@ components:
           description: In-memory product table rows
           items:
             $ref: "#/components/schemas/Product"
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
         snapshot_at:
           description: Timestamp when the product table snapshot was loaded
           format: date-time
@@ -1333,13 +1437,6 @@ components:
       required:
         - data
         - snapshot_at
-      type: object
-    GetSessionProfileApiResponseBody:
-      additionalProperties: false
-      properties:
-        data:
-          $ref: "#/components/schemas/MetisSessionProfile"
-          description: The session profile for the given session id
       type: object
     GetSystemProfileApiResponseBody:
       additionalProperties: false
@@ -1355,8 +1452,9 @@ components:
           description: List of avatars for the user
           items:
             $ref: "#/components/schemas/AvatarResponse"
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
       required:
         - data
       type: object
@@ -1376,8 +1474,9 @@ components:
           description: List of user custom voice profiles
           items:
             $ref: "#/components/schemas/PresignedVoiceProfile"
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
       required:
         - data
       type: object
@@ -1386,39 +1485,16 @@ components:
       properties:
         data:
           description: The image in data-url base64 format. Currently support 'image/jpeg' and 'image/png' format.
-          example: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...
+          examples:
+            - data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...
           type: string
         label:
           description: The label of the image. Used to identify and refer the image in the given prompt.
-          example: Product
+          examples:
+            - Product
           type: string
       required:
         - data
-      type: object
-    LaunchApiRequestBody:
-      additionalProperties: false
-      properties:
-        model:
-          description: The interactive model version to be launched.
-          example: metis-2.5
-          type: string
-        opts:
-          additionalProperties: {}
-          description: Additional options for the instance launch, such as countryCode, gpuTypeIds etc
-          type: object
-        session_group:
-          description: The session group name for the instance. Default session group will be used if it left unspecfied or empty.
-          example: default
-          type: string
-      required:
-        - model
-      type: object
-    LaunchApiResponseBody:
-      additionalProperties: false
-      properties:
-        data:
-          $ref: "#/components/schemas/MetisInstance"
-          description: The launched interactive instance
       type: object
     ListAgentRoutesApiResponseBody:
       additionalProperties: false
@@ -1427,8 +1503,9 @@ components:
           description: Owned agent routes
           items:
             $ref: "#/components/schemas/AgentRouteResponse"
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
       required:
         - data
       type: object
@@ -1439,8 +1516,9 @@ components:
           description: List of user agents
           items:
             $ref: "#/components/schemas/AgentResponse"
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
       required:
         - data
       type: object
@@ -1451,114 +1529,11 @@ components:
           description: List of API tokens for the user
           items:
             $ref: "#/components/schemas/ApiTokenRecord"
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
       required:
         - data
-      type: object
-    ListSessionsApiResponseBody:
-      additionalProperties: false
-      properties:
-        data:
-          description: List of active interactive sessions
-          items:
-            $ref: "#/components/schemas/MetisSession"
-          nullable: true
-          type: array
-      type: object
-    Machine:
-      additionalProperties: false
-      properties:
-        cpuTypeId:
-          type: string
-        gpuAvailable:
-          format: int64
-          type: integer
-        gpuTypeId:
-          type: string
-        maintenanceEnd:
-          $ref: "#/components/schemas/RunpodTime"
-        maintenanceNote:
-          type: string
-        maintenanceStart:
-          $ref: "#/components/schemas/RunpodTime"
-        secureCloud:
-          type: boolean
-      type: object
-    MetisInstance:
-      additionalProperties: false
-      properties:
-        instance_id:
-          type: string
-        launch_time:
-          format: date-time
-          type: string
-        machine:
-          $ref: "#/components/schemas/Machine"
-        metis_model:
-          type: string
-        state:
-          type: string
-        user_id:
-          type: string
-      required:
-        - instance_id
-        - metis_model
-        - state
-      type: object
-    MetisSession:
-      additionalProperties: false
-      properties:
-        avatar:
-          $ref: "#/components/schemas/MetisSessionAvatar"
-          description: Details of the avatar used in the session
-        idle_timeout:
-          description: Idle timeout duration in minutes
-          format: int64
-          type: integer
-        metis_model:
-          description: The Metis model used in the session
-          type: string
-        session_id:
-          description: Unique identifier for the session
-          type: string
-        start_time:
-          description: Timestamp when the session started in RFC3339 format
-          format: date-time
-          type: string
-        state:
-          description: Current state of the session
-          type: string
-        user_id:
-          description: User ID of the session owner
-          type: string
-      required:
-        - avatar
-        - start_time
-      type: object
-    MetisSessionAvatar:
-      additionalProperties: false
-      properties:
-        id:
-          description: Unique identifier for the avatar
-          type: string
-        name:
-          description: Name of the avatar
-          type: string
-      type: object
-    MetisSessionProfile:
-      additionalProperties: false
-      properties:
-        avatar:
-          $ref: "#/components/schemas/PresignedAvatarSystemProfile"
-        session_id:
-          type: string
-        session_token:
-          type: string
-      required:
-        - session_id
-        - session_token
-        - avatar
       type: object
     PresignedAvatarSystemProfile:
       additionalProperties: false
@@ -1572,15 +1547,17 @@ components:
         liveportrait:
           items:
             type: string
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
         name:
           type: string
         supported_interactive_models:
           items:
             type: string
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
       required:
         - id
         - name
@@ -1591,15 +1568,18 @@ components:
       properties:
         key_image:
           description: URL of the key portrait image of the avatar in this theme.
-          example: https://example.com/image.png
+          examples:
+            - https://example.com/image.png
           type: string
         live_video:
           description: URL of the live video for the avatar in this theme.
-          example: https://example.com/live.mp4
+          examples:
+            - https://example.com/live.mp4
           type: string
         name:
           description: Name of the avatar theme
-          example: Default
+          examples:
+            - Default
           type: string
       required:
         - name
@@ -1612,52 +1592,61 @@ components:
         signature:
           items:
             type: string
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
       type: object
     PresignedVoiceProfile:
       additionalProperties: false
       properties:
         created_at:
           description: The creation date of the voice profile.
-          example: "2023-10-01T12:00:00Z"
+          examples:
+            - "2023-10-01T12:00:00Z"
           format: date-time
           type: string
         description:
           description: The description of the voice profile.
-          example: A friendly and professional voice for customer support.
+          examples:
+            - A friendly and professional voice for customer support.
           type: string
         id:
           description: The unique identifier for the voice profile.
           type: string
         is_premade:
           description: Whether the voice profile is a default premade profile.
-          example: true
+          examples:
+            - true
           type: boolean
         languages:
           description: The languages supported by the voice profile.
-          example:
-            - en
-            - yue
+          examples:
+            - - en
+              - yue
           items:
             type: string
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
         name:
           description: The name of the voice profile.
-          example: Mira Korner
+          examples:
+            - Mira Korner
           type: string
         sample_clip:
           description: The URL of a sample audio clip for the voice profile.
-          example: https://example.com/sample.mp3
+          examples:
+            - https://example.com/sample.mp3
           type: string
         status:
           description: The status of the voice profile.
-          example: READY
+          examples:
+            - READY
           type: string
         user_id:
           description: The user ID of the owner associated with the voice profile.
-          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          examples:
+            - f47ac10b-58cc-4372-a567-0e02b2c3d479
           type: string
       required:
         - id
@@ -1667,32 +1656,37 @@ components:
       properties:
         created_at:
           description: The creation date of the voice profile.
-          example: "2023-10-01T12:00:00Z"
+          examples:
+            - "2023-10-01T12:00:00Z"
           format: date-time
           type: string
         description:
           description: The description of the voice profile.
-          example: A friendly and professional voice for customer support.
+          examples:
+            - A friendly and professional voice for customer support.
           type: string
         id:
           description: The unique identifier for the voice profile.
           type: string
         is_premade:
           description: Whether the voice profile is a default premade profile.
-          example: true
+          examples:
+            - true
           type: boolean
         languages:
           description: The languages supported by the voice profile.
-          example:
-            - en
-            - yue
+          examples:
+            - - en
+              - yue
           items:
             type: string
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
         name:
           description: The name of the voice profile.
-          example: Mira Korner
+          examples:
+            - Mira Korner
           type: string
         params:
           additionalProperties: {}
@@ -1700,30 +1694,24 @@ components:
           type: object
         sample_clip:
           description: The URL of a sample audio clip for the voice profile.
-          example: https://example.com/sample.mp3
+          examples:
+            - https://example.com/sample.mp3
           type: string
         service_name:
           description: The name of the voice service used for this profile.
           type: string
         status:
           description: The status of the voice profile.
-          example: READY
+          examples:
+            - READY
           type: string
         user_id:
           description: The user ID of the owner associated with the voice profile.
-          example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+          examples:
+            - f47ac10b-58cc-4372-a567-0e02b2c3d479
           type: string
       required:
         - id
-      type: object
-    PrivateApiResponseBody:
-      additionalProperties: false
-      properties:
-        message:
-          description: A simple hello world message for private API access
-          type: string
-      required:
-        - message
       type: object
     Product:
       additionalProperties: false
@@ -1751,8 +1739,9 @@ components:
           description: Lifecycle snapshots in the same order as route_ids
           items:
             $ref: "#/components/schemas/ReconciliationSnapshot"
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
       required:
         - data
       type: object
@@ -1765,8 +1754,9 @@ components:
             type: string
           maxItems: 100
           minItems: 1
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
       required:
         - route_ids
       type: object
@@ -1776,16 +1766,19 @@ components:
         expires_at:
           description: Absolute expiration time, or null
           format: date-time
-          nullable: true
-          type: string
+          type:
+            - string
+            - "null"
         revoked_at:
           description: Manual revocation time, or null
           format: date-time
-          nullable: true
-          type: string
+          type:
+            - string
+            - "null"
         route_id:
           description: Requested route identifier
-          example: a1b2c3d4-e5f6-4890-9234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-4890-9234-567890abcdef
           type: string
         route_version:
           description: Current lifecycle version, or zero when missing
@@ -1847,7 +1840,8 @@ components:
       properties:
         route_id:
           description: Agent route UUIDv4 bearer capability
-          example: a1b2c3d4-e5f6-4890-9234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-4890-9234-567890abcdef
           type: string
       required:
         - route_id
@@ -1872,16 +1866,14 @@ components:
       required:
         - data
       type: object
-    RunpodTime:
-      additionalProperties: false
-      type: object
     STTApiRequestBody:
       additionalProperties: false
       properties:
         audio:
+          contentEncoding: base64
           description: Base64 encoded audio data
-          example: UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQ==
-          format: base64
+          examples:
+            - UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQ==
           type: string
       required:
         - audio
@@ -1898,26 +1890,30 @@ components:
       properties:
         id:
           description: The unique request ID
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
         input_duration:
           description: The duration of the input audio in seconds.
-          example: 5
+          examples:
+            - 5
           format: double
           type: number
         text:
           description: The transcribed text
-          example: Simplicity is the ultimate sophistication.
+          examples:
+            - Simplicity is the ultimate sophistication.
           type: string
         transcription:
           description: The transcription of the audio
-          example:
-            - end: 3
-              start: 0
-              text: Simplicity is the ultimate sophistication.
+          examples:
+            - - end: 3
+                start: 0
+                text: Simplicity is the ultimate sophistication.
           items: {}
-          nullable: true
-          type: array
+          type:
+            - array
+            - "null"
       required:
         - id
         - text
@@ -1934,102 +1930,6 @@ components:
         - code
         - message
       type: object
-    StartSessionApiRequestBody:
-      additionalProperties: false
-      properties:
-        avatar_id:
-          description: The avatar id
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
-          type: string
-        idle_timeout:
-          description: Idle timeout in mins. The default value is 15 minutes if not specified. Setting it to -1 will disable the idle timeout, making the session never auto-terminate due to inactivity.
-          example: 15
-          format: int64
-          type: integer
-        instruction:
-          description: The instruction prompt for the avatar in the session
-          example: You are a helpful assistant.
-          maxLength: 12000
-          type: string
-        llm_model:
-          description: The LLM model to be used for generating avatar's response
-          example: gemini-2.0-flash
-          type: string
-        model:
-          default: metis-2.5
-          description: The interactive model version. The default model used is 'metis-2.5'
-          enum:
-            - metis-2.5
-          example: metis-2.5
-          type: string
-        tools:
-          description: The tools to be used in the session
-          type: string
-        use_beta:
-          description: Use beta interactive model. Beta model is the latest dev model, which is rapidly changed, may have bugs and not suitable for production. Default is false.
-          example: false
-          type: boolean
-        voice_profile_id:
-          description: The voice profile id
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
-          type: string
-      required:
-        - avatar_id
-        - llm_model
-        - instruction
-        - voice_profile_id
-      type: object
-    StartSessionApiResponseBody:
-      additionalProperties: false
-      properties:
-        data:
-          $ref: "#/components/schemas/StartSessionOutput"
-          description: The result of the start session request
-      type: object
-    StartSessionOutput:
-      additionalProperties: false
-      properties:
-        session:
-          $ref: "#/components/schemas/MetisSession"
-          description: The started session details
-        session_token:
-          description: The session token for the started session
-          type: string
-      required:
-        - session
-        - session_token
-      type: object
-    StopSessionOutput:
-      additionalProperties: false
-      properties:
-        stopped_sessions:
-          description: The list of stopped session IDs
-          items:
-            type: string
-          nullable: true
-          type: array
-      required:
-        - stopped_sessions
-      type: object
-    StopSessionsApiRequestBody:
-      additionalProperties: false
-      properties:
-        session_ids:
-          description: The id of the sessions to be stopped
-          items:
-            type: string
-          nullable: true
-          type: array
-      required:
-        - session_ids
-      type: object
-    StopSessionsApiResponseBody:
-      additionalProperties: false
-      properties:
-        data:
-          $ref: "#/components/schemas/StopSessionOutput"
-          description: The result of the stop sessions request
-      type: object
     SystemAgentRouteResponse:
       additionalProperties: false
       properties:
@@ -2043,16 +1943,18 @@ components:
         expires_at:
           description: Absolute expiration time, or null
           format: date-time
-          nullable: true
-          type: string
+          type:
+            - string
+            - "null"
         id:
           description: Route UUIDv4 bearer capability
           type: string
         revoked_at:
           description: Manual revocation time, or null
           format: date-time
-          nullable: true
-          type: string
+          type:
+            - string
+            - "null"
         route_version:
           description: Monotonic lifecycle version
           format: int64
@@ -2085,24 +1987,28 @@ components:
           enum:
             - mandarin
             - yue
-          example: yue
+          examples:
+            - yue
           type: string
         opts:
           $ref: "#/components/schemas/TTSParams"
           description: Optional parameters to control the style of the output audio.
         return_type:
           description: Return type of the audio, either 'b64_audio_str' or 'file_url'.
-          example: b64_audio_str
+          examples:
+            - b64_audio_str
           type: string
         text:
           description: Text to be converted to speech
-          example: Simplicity is the ultimate sophistication.
+          examples:
+            - Simplicity is the ultimate sophistication.
           maxLength: 10000
           minLength: 1
           type: string
         voice_profile_id:
           description: Voice profile ID
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
       required:
         - text
@@ -2121,24 +2027,29 @@ components:
       properties:
         b64_audio_str:
           description: The PCM s16 audio data encoded as a base64 string. Only available when the return_type is 'b64_audio_str'.
-          example: UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQ==
+          examples:
+            - UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQ==
           type: string
         file_url:
           description: The URL of the audio file. Only available when the return_type is 'file_url'.
-          example: https://mirako.ai/audio/a1b2c3d4-e5f6-7890-1234-567890abcdef.wav
+          examples:
+            - https://mirako.ai/audio/a1b2c3d4-e5f6-7890-1234-567890abcdef.wav
           type: string
         id:
           description: The unique request ID
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
         output_duration:
           description: The duration of the output audio in seconds.
-          example: 5
+          examples:
+            - 5
           format: double
           type: number
         voice_profile_id:
           description: The voice profile ID used for TTS
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
       required:
         - id
@@ -2149,14 +2060,16 @@ components:
       properties:
         fragment_interval:
           description: Control the length of pause between sentenses. Default is 0.1.
-          example: 0.1
+          examples:
+            - 0.1
           format: float
           maximum: 1
           minimum: 0
           type: number
         temperature:
           description: The temperature for the TTS model, controls the randomness of the output. Default is 1.0.
-          example: 1
+          examples:
+            - 1
           format: float
           maximum: 1
           minimum: 0
@@ -2201,37 +2114,6 @@ components:
         - stage
         - created_at
       type: object
-    TerminateApiRequestBody:
-      additionalProperties: false
-      properties:
-        instance_id:
-          description: The id of the instances to be terminated
-          items:
-            type: string
-          nullable: true
-          type: array
-      required:
-        - instance_id
-      type: object
-    TerminateApiResponseBody:
-      additionalProperties: false
-      properties:
-        data:
-          $ref: "#/components/schemas/TerminateInstancesOutput"
-          description: The result of the termination request
-      type: object
-    TerminateInstancesOutput:
-      additionalProperties: false
-      properties:
-        terminated_instances:
-          description: The list of terminated instance IDs
-          items:
-            type: string
-          nullable: true
-          type: array
-      required:
-        - terminated_instances
-      type: object
     UpdateAgentApiResponseBody:
       additionalProperties: false
       properties:
@@ -2246,39 +2128,42 @@ components:
       properties:
         avatar_id:
           description: Avatar used by the agent
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
         custom_agent_bearer_token:
           description: Optional bearer token sent to the custom agent endpoint. Send an empty string to clear it.
-          example: secret-token
+          examples:
+            - secret-token
           type: string
         custom_agent_protocol:
           description: Custom agent streaming protocol. Currently only vercel_ai_sdk is supported
           enum:
             - vercel_ai_sdk
-          example: vercel_ai_sdk
+          examples:
+            - vercel_ai_sdk
           type: string
         custom_agent_url:
           description: Custom agent endpoint URL
-          example: https://example.com/api/chat
+          examples:
+            - https://example.com/api/chat
           type: string
         description:
           description: Optional description for the agent
-          example: A helpful support avatar for product questions.
+          examples:
+            - A helpful support avatar for product questions.
           maxLength: 512
           type: string
         instruction:
           description: Instruction prompt for managed agents
-          example: You are a helpful assistant.
+          examples:
+            - You are a helpful assistant.
           maxLength: 12000
-          type: string
-        model:
-          description: Interactive Metis model used by the agent
-          example: metis-2.5
           type: string
         name:
           description: Name of the agent
-          example: Support Agent
+          examples:
+            - Support Agent
           maxLength: 64
           minLength: 1
           type: string
@@ -2287,16 +2172,19 @@ components:
           enum:
             - managed_agent
             - custom_agent
-          example: managed_agent
+          examples:
+            - managed_agent
           type: string
         tools:
           description: Tool definitions available to managed agents
-          example: []
+          examples:
+            - []
           items: {}
           type: array
         voice_profile_id:
           description: Voice profile used by the agent
-          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+          examples:
+            - a1b2c3d4-e5f6-7890-1234-567890abcdef
           type: string
       type: object
     UpdateAgentRouteApiResponseBody:
@@ -2313,10 +2201,12 @@ components:
       properties:
         label:
           description: Required owner-facing label update. Use null to clear it.
-          example: Production website
+          examples:
+            - Production website
           maxLength: 100
-          nullable: true
-          type: string
+          type:
+            - string
+            - "null"
       required:
         - label
       type: object
@@ -2325,11 +2215,13 @@ components:
       properties:
         auth_token:
           description: "Auth token used to authenticate the webhook via 'Authorization: Bearer' header"
-          example: secure_token_for_webhook
+          examples:
+            - secure_token_for_webhook
           type: string
         url:
           description: Webhook URL to receive the async task status
-          example: https://my-ai-service.com/webhook
+          examples:
+            - https://my-ai-service.com/webhook
           type: string
       required:
         - url
@@ -2344,7 +2236,7 @@ components:
 info:
   title: Mirako API
   version: 1.0.0
-openapi: 3.0.3
+openapi: 3.1.0
 paths:
   /v1/agent-routes:
     get:
@@ -2380,7 +2272,8 @@ paths:
           required: true
           schema:
             description: Agent route ID
-            example: a1b2c3d4-e5f6-4890-9234-567890abcdef
+            examples:
+              - a1b2c3d4-e5f6-4890-9234-567890abcdef
             type: string
       responses:
         "200":
@@ -2412,7 +2305,8 @@ paths:
           required: true
           schema:
             description: Agent route ID
-            example: a1b2c3d4-e5f6-4890-9234-567890abcdef
+            examples:
+              - a1b2c3d4-e5f6-4890-9234-567890abcdef
             type: string
       responses:
         "200":
@@ -2444,7 +2338,8 @@ paths:
           required: true
           schema:
             description: Agent route ID
-            example: a1b2c3d4-e5f6-4890-9234-567890abcdef
+            examples:
+              - a1b2c3d4-e5f6-4890-9234-567890abcdef
             type: string
       requestBody:
         content:
@@ -2531,7 +2426,8 @@ paths:
           required: true
           schema:
             description: Owned target agent ID
-            example: b1b2c3d4-e5f6-4890-9234-567890abcdef
+            examples:
+              - b1b2c3d4-e5f6-4890-9234-567890abcdef
             type: string
       responses:
         "200":
@@ -2562,7 +2458,8 @@ paths:
           required: true
           schema:
             description: Owned target agent ID
-            example: b1b2c3d4-e5f6-4890-9234-567890abcdef
+            examples:
+              - b1b2c3d4-e5f6-4890-9234-567890abcdef
             type: string
       requestBody:
         content:
@@ -2600,7 +2497,8 @@ paths:
           required: true
           schema:
             description: Agent ID
-            example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+            examples:
+              - a1b2c3d4-e5f6-7890-1234-567890abcdef
             type: string
       responses:
         "200":
@@ -2631,7 +2529,8 @@ paths:
           required: true
           schema:
             description: Agent ID
-            example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+            examples:
+              - a1b2c3d4-e5f6-7890-1234-567890abcdef
             type: string
       responses:
         "200":
@@ -2663,7 +2562,8 @@ paths:
           required: true
           schema:
             description: Agent ID
-            example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+            examples:
+              - a1b2c3d4-e5f6-7890-1234-567890abcdef
             type: string
       requestBody:
         content:
@@ -2809,7 +2709,8 @@ paths:
           required: true
           schema:
             description: The avatar id
-            example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+            examples:
+              - a1b2c3d4-e5f6-7890-1234-567890abcdef
             type: string
       responses:
         "204":
@@ -2836,7 +2737,8 @@ paths:
           required: true
           schema:
             description: The avatar id
-            example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+            examples:
+              - a1b2c3d4-e5f6-7890-1234-567890abcdef
             type: string
       responses:
         "200":
@@ -2944,7 +2846,7 @@ paths:
         - Image
   /v1/image/upscale:
     post:
-      description: Stream one JPEG, PNG, or static WebP and synchronously create a verified PNG result. Successful output projections expose readable_until as the exact object-created plus 24-hour boundary.
+      description: Upload a JPEG, PNG, or static WebP image to enlarge it by 2× or 4× (4× by default). Send the image in the `file` field of a multipart form; you can also include `webhook_url` and `webhook_token`. The request waits for processing to finish, then returns the completed task. `data.result.output` contains a PNG download URL in `file_url`, along with details such as the output dimensions and file size. The result can be downloaded for 24 hours after it is created, and `readable_until` tells you when that window closes.
       operationId: UpscaleImage
       parameters:
         - in: query
@@ -3025,6 +2927,7 @@ paths:
         - Image
   /v1/image/upscale/{task_id}:
     get:
+      description: Retrieve an image upscale task using the `task_id` returned by the upscale request. The response shows the task status and its settings. For a completed task, `data.result.output` contains the PNG download URL and output details. The result can be downloaded for 24 hours after it is created, and `readable_until` tells you when that window closes.
       operationId: GetImageUpscaleTask
       parameters:
         - description: GTai image upscale task ID
@@ -3086,112 +2989,6 @@ paths:
       summary: Get an image upscale task
       tags:
         - Image
-  /v1/interactive/list:
-    get:
-      description: List all active interactive sessions.
-      operationId: ListInteractiveSessions
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ListSessionsApiResponseBody"
-          description: OK
-        default:
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Error
-      security:
-        - BearerAuth: []
-      summary: List active interactive sessions
-      tags:
-        - Interactive
-  /v1/interactive/session/{id}/profile:
-    get:
-      description: Get the session profile for a given session id.
-      operationId: GetSessionProfile
-      parameters:
-        - description: Session ID
-          in: path
-          name: id
-          required: true
-          schema:
-            description: Session ID
-            type: string
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GetSessionProfileApiResponseBody"
-          description: OK
-        default:
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Error
-      summary: Get session profile
-      tags:
-        - Interactive
-  /v1/interactive/start_session:
-    post:
-      description: Start an interactive session.
-      operationId: StartInteractiveSession
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/StartSessionApiRequestBody"
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/StartSessionApiResponseBody"
-          description: OK
-        default:
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Error
-      security:
-        - BearerAuth: []
-      summary: Start interactive session
-      tags:
-        - Interactive
-  /v1/interactive/stop_sessions:
-    post:
-      description: Stop interactive sessions specified by session ids.
-      operationId: StopInteractiveSessions
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/StopSessionsApiRequestBody"
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/StopSessionsApiResponseBody"
-          description: OK
-        default:
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/ErrorModel"
-          description: Error
-      security:
-        - BearerAuth: []
-      summary: Stop interactive sessions
-      tags:
-        - Interactive
   /v1/speech/stt:
     post:
       description: Convert speech to text.
@@ -3366,7 +3163,7 @@ paths:
         - Video
   /v1/video/upscale:
     post:
-      description: Stream one MP4 and submit one asynchronous video upscale job. Successful output projections expose readable_until as the exact object-created plus 24-hour boundary.
+      description: Upload an MP4 video and start an upscale to 1080p, 2K, or 4K. Billing has a five-second minimum and rounds longer verified output durations up to the next whole second. Send the video in the `file` field of a multipart form, choose the target with the required `resolution` query parameter, and optionally include `webhook_url` and `webhook_token`. The response contains a task ID, the current status, and a status URL to poll while the video is processed. When the task is complete, `data.result.output` contains an MP4 download URL in `file_url` and video details such as its dimensions, duration, and frame rate. The result can be downloaded for 24 hours after it is created, and `readable_until` tells you when that window closes.
       operationId: UpscaleVideo
       parameters:
         - in: query
@@ -3448,6 +3245,7 @@ paths:
         - Video
   /v1/video/upscale/{task_id}:
     get:
+      description: Retrieve the latest status of a video upscale task using the `task_id` returned by the upscale request. While processing, the response shows the task's status and current stage. When complete, `data.result.output` contains the MP4 download URL and video details such as its dimensions, duration, and frame rate. The result can be downloaded for 24 hours after it is created, and `readable_until` tells you when that window closes.
       operationId: GetVideoUpscaleTask
       parameters:
         - description: GTai video upscale task ID
@@ -3553,12 +3351,14 @@ paths:
                   type: boolean
                 description:
                   description: Optional description for the new voice profile.
-                  example: Sweet British woman voice.
+                  examples:
+                    - Sweet British woman voice.
                   maxLength: 512
                   type: string
                 name:
                   description: The name of the new voice profile to be created. If not provided, a default name will be generated.
-                  example: My Custom Voice
+                  examples:
+                    - My Custom Voice
                   maxLength: 64
                   minLength: 3
                   type: string
@@ -3676,7 +3476,8 @@ paths:
           required: true
           schema:
             description: The voice profile id
-            example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+            examples:
+              - a1b2c3d4-e5f6-7890-1234-567890abcdef
             type: string
       responses:
         "200":
@@ -3707,7 +3508,8 @@ paths:
           required: true
           schema:
             description: The voice profile id
-            example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+            examples:
+              - a1b2c3d4-e5f6-7890-1234-567890abcdef
             type: string
       responses:
         "200":

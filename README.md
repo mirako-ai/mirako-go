@@ -12,7 +12,7 @@ Official Go SDK for [Mirako.ai](https://mirako.ai). Generate AI avatars, images,
 - **Video Generation**: Create talking avatar and motion videos
 - **Text-to-Speech (TTS)**: Convert text to natural-sounding speech
 - **Speech-to-Text (STT)**: Transcribe audio to text
-- **Interactive Sessions**: Manage real-time interactive avatar sessions
+- **Agents**: Create and manage persistent avatar agents and Agent Routes
 - **Voice Cloning**: Clone and manage custom voice profiles
 
 ## Installation
@@ -211,19 +211,22 @@ if err != nil {
 defer resp.Body.Close()
 ```
 
-### Start Interactive Session
+### Create an Agent
+
+Use an avatar that supports `metis-3.0`.
 
 ```go
 ctx := context.Background()
+instruction := "You are a helpful assistant."
 
-body := api.StartInteractiveSessionJSONRequestBody{
+body := api.CreateAgentJSONRequestBody{
+	Name:           "Support Agent",
 	AvatarId:       "avatar-id",
 	VoiceProfileId: "voice-profile-id",
-	LlmModel:       "gemini-2.0-flash",
-	Instruction:    "You are a helpful assistant.",
+	Instruction:    &instruction,
 }
 
-resp, err := client.StartInteractiveSession(ctx, body)
+resp, err := client.CreateAgent(ctx, body)
 if err != nil {
 	log.Fatal(err)
 }
