@@ -13,7 +13,7 @@ Official Go SDK for [Mirako.ai](https://mirako.ai). Generate AI avatars, images,
 - **Text-to-Speech (TTS)**: Convert text to natural-sounding speech
 - **Speech-to-Text (STT)**: Transcribe audio to text
 - **Agents**: Create and manage persistent avatar agents and Agent Routes
-- **Voice Cloning**: Clone and manage custom voice profiles
+- **Voice Profiles**: Browse premade voices and manage existing custom profiles
 
 ## Installation
 
