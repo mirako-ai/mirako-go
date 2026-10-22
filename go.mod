@@ -1,6 +1,6 @@
 module github.com/mirako-ai/mirako-go
 
-go 1.24.1
+go 1.26.10
 
 require (
 	github.com/getkin/kin-openapi v0.132.0

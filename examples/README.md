@@ -45,7 +45,7 @@ cd tts && go run main.go
 
 ## Prerequisites
 
-- Go 1.21 or later
+- Go 1.26.10 or later
 - Mirako API key (get one at https://mirako.co)
 
 ## Notes
